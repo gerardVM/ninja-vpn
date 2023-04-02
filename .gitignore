@@ -2,6 +2,6 @@ tfplan.out
 .terraform/
 terraform.tfstate*
 .ssh/
-#.aws/
+.aws/
 docker-compose_updated.yaml
 wireguard.conf
