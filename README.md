@@ -58,6 +58,10 @@ Configure your Wireguard client with the provided info:
 - For Android: Scan the QR code with the Wireguard app.
 - For Desktop: Import the freshly created wireguard.conf file with the Wireguard app.
 
+## Countdown feature (optional)
+
+The VPN server will be automatically destroyed after a certain amount of time. You can configure this time in the config.yaml file.
+
 ## Contributing
 
 Pull requests are welcome
