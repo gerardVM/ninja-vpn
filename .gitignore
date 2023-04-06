@@ -5,3 +5,4 @@ terraform.tfstate*
 .aws/
 docker-compose_updated.yaml
 wireguard.conf
+terminate_instance.zip

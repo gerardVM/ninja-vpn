@@ -3,3 +3,4 @@ region: "eu-west-3"                 # Choose an AWS region
 image_id: "ami-017d9f576d1635a77"   # Amazon Linux 2023 x86 AMI
 instance_type: "t2.micro"           # Around $0,13 per 24h
 my_timezone: "Europe/Madrid"        # Choose your timezone
+countdown: "5 minutes"              # Countdown to terminate the instance (Optional)

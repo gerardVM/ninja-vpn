@@ -12,14 +12,11 @@ export DOCKER_DIR
 tf-init:
 	@cd ${TF_DIR} && terraform init -reconfigure
 
-tf-validate: tf-init new-keypair
+tf-validate: new-keypair tf-init
 	@cd ${TF_DIR} && terraform validate
 
-tf-plan:
-	@cd ${TF_DIR} && terraform plan -out=tfplan.out 
-
 tf-apply:
-	@cd ${TF_DIR} && terraform apply --auto-approve tfplan.out
+	@cd ${TF_DIR} && terraform apply
 
 tf-output:
 	@cd ${TF_DIR} && terraform output -json
@@ -27,10 +24,10 @@ tf-output:
 new-keypair:
 	@mkdir -p ${SSH_DIR} && cd ${SSH_DIR} && ssh-keygen -t rsa -b 4096 -C "ninja-vpn" -q -N "" -f ${SSH_DIR}/id_rsa
 
-deploy:
+app-deploy:
 	@cd ${TF_DIR} && ${SCRIPTS_DIR}/deploy.sh
 
-build-vpn: tf-validate tf-plan tf-apply deploy
+build-vpn: tf-validate tf-apply app-deploy
 
 destroy-vpn:
-	@cd ${TF_DIR} && terraform destroy --auto-approve
+	@cd ${TF_DIR} && terraform destroy
