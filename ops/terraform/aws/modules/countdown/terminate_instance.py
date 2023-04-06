@@ -21,3 +21,5 @@ def lambda_handler(event, context):
 
     # Delete the rule
     response3 = events.delete_rule(Name=rule_id)
+
+    return 'Instance terminated'
