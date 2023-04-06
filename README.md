@@ -61,11 +61,3 @@ Configure your Wireguard client with the provided info:
 ## Countdown feature (optional)
 
 The VPN server will be automatically destroyed after a certain amount of time. You can configure this time in the config.yaml file.
-
-## Contributing
-
-Pull requests are welcome
-
-## License
-
-[MIT](LICENSE.txt)
