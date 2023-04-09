@@ -21,10 +21,11 @@ tf-apply: new-keypair
 tf-output:
 	@cd ${TF_DIR} && terraform output -json
 
+tf-destroy:
+	@cd ${TF_DIR} && terraform destroy
+
 new-keypair:
 	@mkdir -p ${SSH_DIR} && cd ${SSH_DIR} && ssh-keygen -t rsa -b 4096 -C "ninja-vpn" -q -N "" -f ${SSH_DIR}/id_rsa
-
-build-vpn: tf-validate tf-apply retreive-wg-config
 
 retreive-wg-config:
 	@cd ${TF_DIR} && terraform output public_dns | tr -d '"' | xargs -I {} \
@@ -33,5 +34,4 @@ retreive-wg-config:
 	-o "UserKnownHostsFile=/dev/null" \
 	ec2-user@{} "docker exec wireguard cat /config/peer1/peer1.conf" > ../../../wireguard.conf
 
-destroy-vpn:
-	@cd ${TF_DIR} && terraform destroy
+vpn-deploy: tf-validate tf-apply retreive-wg-config

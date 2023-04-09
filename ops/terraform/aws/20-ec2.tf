@@ -2,6 +2,7 @@ locals {
     config      = yamldecode(file("${path.root}/../../../config.yaml"))
     countdown   = try(local.config.countdown, null)
     private_key = file("${path.root}/../../.ssh/id_rsa")
+    public_key  = file("${path.root}/../../.ssh/id_rsa.pub")
 }
 
 resource "aws_launch_template" "launch_template" {
@@ -40,7 +41,7 @@ resource "aws_launch_template" "launch_template" {
 
 resource "aws_key_pair" "ssh_keys" {
     key_name    = local.config.name
-    public_key  = local.private_key
+    public_key  = local.public_key
 }
 
 resource "aws_instance" "ec2_instance" {
