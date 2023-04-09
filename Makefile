@@ -12,10 +12,10 @@ export DOCKER_DIR
 tf-init:
 	@cd ${TF_DIR} && terraform init -reconfigure
 
-tf-validate: new-keypair tf-init
+tf-validate: tf-init
 	@cd ${TF_DIR} && terraform validate
 
-tf-apply:
+tf-apply: new-keypair
 	@cd ${TF_DIR} && terraform apply
 
 tf-output:
@@ -24,10 +24,14 @@ tf-output:
 new-keypair:
 	@mkdir -p ${SSH_DIR} && cd ${SSH_DIR} && ssh-keygen -t rsa -b 4096 -C "ninja-vpn" -q -N "" -f ${SSH_DIR}/id_rsa
 
-app-deploy:
-	@cd ${TF_DIR} && ${SCRIPTS_DIR}/deploy.sh
+build-vpn: tf-validate tf-apply retreive-wg-config
 
-build-vpn: tf-validate tf-apply app-deploy
+retreive-wg-config:
+	@cd ${TF_DIR} && terraform output public_dns | tr -d '"' | xargs -I {} \
+	ssh -i ${SSH_DIR}/id_rsa \
+	-o "StrictHostKeyChecking no" \
+	-o "UserKnownHostsFile=/dev/null" \
+	ec2-user@{} "docker exec wireguard cat /config/peer1/peer1.conf" > ../../../wireguard.conf
 
 destroy-vpn:
 	@cd ${TF_DIR} && terraform destroy

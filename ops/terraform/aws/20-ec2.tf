@@ -1,12 +1,12 @@
 locals {
-    config    = yamldecode(file("${path.root}/../../../config.yaml"))
-    countdown = try(local.config.countdown, null)
+    config      = yamldecode(file("${path.root}/../../../config.yaml"))
+    countdown   = try(local.config.countdown, null)
+    private_key = file("${path.root}/../../.ssh/id_rsa")
 }
 
 resource "aws_launch_template" "launch_template" {
-  name = local.config.name
-
-  image_id = local.config.image_id
+  name_prefix   = local.config.name
+  image_id      = local.config.image_id
 
   instance_market_options {
     market_type = "spot"
@@ -18,7 +18,14 @@ resource "aws_launch_template" "launch_template" {
 
   monitoring {
     enabled = false
-  }
+  }  
+  
+  # network_interfaces {
+  #   associate_public_ip_address = true
+  #   delete_on_termination       = true
+  #   device_index                = 0
+  #   # subnet_id                   = module.vpc.public_subnets[0]
+  # }
 
   vpc_security_group_ids = [aws_security_group.security_group.id]
 
@@ -33,38 +40,7 @@ resource "aws_launch_template" "launch_template" {
 
 resource "aws_key_pair" "ssh_keys" {
     key_name    = local.config.name
-    public_key  = file("${path.root}/../../.ssh/id_rsa.pub")
-}
-
-resource "aws_security_group" "security_group" {
-  name_prefix = "${local.config.name}-"
-  description = "Allow SSH traffic"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-    ingress {
-    from_port   = 51820
-    to_port     = 51820
-    protocol    = "udp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = local.config.name
-  }
-
+    public_key  = local.private_key
 }
 
 resource "aws_instance" "ec2_instance" {
@@ -74,33 +50,47 @@ resource "aws_instance" "ec2_instance" {
     version = "$Latest"
   }
 
+  provisioner "file" {
+    source      = "./files/docker-compose.yaml"
+    destination = "/home/ec2-user/docker-compose.yaml"
+
+    connection {
+       type = "ssh"
+       user = "ec2-user"
+       private_key = local.private_key
+       host = self.public_ip
+    }
+  }
+
+  provisioner "file" {
+    source      = "./files/install-vpn.sh"
+    destination = "/home/ec2-user/install-vpn.sh"
+
+    connection {
+       type = "ssh"
+       user = "ec2-user"
+       private_key = local.private_key
+       host = self.public_ip
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /home/ec2-user/install-vpn.sh",
+      "export TIMEZONE=${local.config.my_timezone}",
+      "export ADDRESS=${self.public_dns}",
+      "/home/ec2-user/install-vpn.sh",
+    ]
+
+    connection {
+       type = "ssh"
+       user = "ec2-user"
+       private_key = local.private_key
+       host = self.public_ip
+    }
+  }
+  
   tags = {
     Name = local.config.name
   }
-
-  depends_on = [
-    aws_launch_template.launch_template,
-    aws_key_pair.ssh_keys,
-    aws_security_group.security_group
-  ]
-
-}
-
-module "countdown" {
-  source      = "./modules/countdown"
-  
-  count       = local.countdown == null ? 0 : 1
-
-  instance_id = aws_instance.ec2_instance.id
-  countdown   = local.countdown
-
-  depends_on  = [aws_instance.ec2_instance]
-  
-  tags        = {
-    Name = local.config.name
-  }
-}
-
-output public_dns {
-  value = aws_instance.ec2_instance.public_dns
 }
