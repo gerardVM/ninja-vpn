@@ -53,10 +53,10 @@ make vpn-deploy # Create and deploy the VPN server
 make tf-destroy # Destroy the VPN server
 ```
 
-Configure your Wireguard client with the provided info:
+Configure your Wireguard client with the info sent into your email:
 
 - For Android: Scan the QR code with the Wireguard app.
-- For Desktop: Import the freshly created wireguard.conf file with the Wireguard app.
+- For Desktop: Import the attached config file into the Wireguard app.
 
 ## Countdown feature (optional)
 
