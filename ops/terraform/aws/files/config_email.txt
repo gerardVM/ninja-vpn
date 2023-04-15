@@ -1,8 +1,3 @@
-#!/bin/bash
-subject="VPN Credentials"
-docker exec wireguard cat /config/peer1/peer1.conf > /home/ec2-user/wg-client.conf && file_data=$(base64 /home/ec2-user/wg-client.conf)
-qrencode -t png -o /home/ec2-user/user-qr.png -r /home/ec2-user/wg-client.conf && image_data=$(base64 /home/ec2-user/user-qr.png)
-email=$(cat <<EOF
 From: $EMAIL_ADDRESS
 To: $EMAIL_ADDRESS
 Subject: $subject
@@ -42,6 +37,3 @@ Content-ID: <wg-client.conf>
 $file_data
 
 --boundary-1--
-
-EOF
-)

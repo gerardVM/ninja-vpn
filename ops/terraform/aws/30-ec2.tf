@@ -6,8 +6,8 @@ data "template_file" "install_vpn" {
     TIMEZONE      = local.config.my_timezone
     DOCKER_CONFIG = "/root/.docker"
     S3_BUCKET     = aws_s3_bucket.bucket.bucket
-    S3_DC_KEY     = aws_s3_bucket_object.docker-compose.key
-    S3_BE_KEY     = aws_s3_bucket_object.build-email.key
+    S3_DC_KEY     = aws_s3_object.docker-compose.key
+    S3_CE_KEY     = aws_s3_object.config_email.key
     EMAIL_ADDRESS = local.config.email
   }
 }

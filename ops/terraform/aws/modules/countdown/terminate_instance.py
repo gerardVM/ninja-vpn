@@ -22,4 +22,15 @@ def lambda_handler(event, context):
     # Delete the rule
     response3 = events.delete_rule(Name=rule_id)
 
+    # Send email notification
+    ses = boto3.client('ses')
+    email_address = event['email_address']
+    destination = {'ToAddresses': [ email_address ]}
+    message = {
+        'Subject': {'Data': 'VPN server terminated'},
+        'Body': {'Text': {'Data': 'The VPN server has been terminated'}}
+    }
+    source = email_address
+    ses.send_email(Destination=destination, Message=message, Source=source)
+
     return 'Instance terminated'

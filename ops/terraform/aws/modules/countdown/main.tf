@@ -56,6 +56,7 @@ resource "aws_iam_policy" "termination_policy" {
           "events:RemoveTargets",
           "events:ListTargetsByRule",
           "ec2:TerminateInstances",
+          "ses:SendEmail",
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
@@ -83,6 +84,7 @@ resource "aws_cloudwatch_event_target" "terminate_instance_target" {
   arn       = aws_lambda_function.terminate_instance_lambda.arn
   input     = jsonencode({
     "instance_id": var.instance_id,
-    "rule_id": aws_cloudwatch_event_rule.terminate_instance_rule.id
+    "rule_id": aws_cloudwatch_event_rule.terminate_instance_rule.id,
+    "email_address": var.email
   })
 }
