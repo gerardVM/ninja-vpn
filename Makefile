@@ -8,8 +8,11 @@ tf-init:
 tf-validate: tf-init
 	@cd ${TF_DIR} && terraform validate
 
+tf-plan:
+	@cd ${TF_DIR} && terraform plan -out=tfplan.out
+
 tf-apply:
-	@cd ${TF_DIR} && terraform apply
+	@cd ${TF_DIR} && terraform apply tfplan.out
 
 tf-output:
 	@cd ${TF_DIR} && terraform output -json
@@ -17,6 +20,9 @@ tf-output:
 tf-destroy:
 	@cd ${TF_DIR} && terraform destroy
 
-vpn-deploy: tf-validate tf-apply
+tf-add-backend:
+	@./ops/scripts/s3-backend.sh > ${TF_DIR}/05-backend.tf
+
+vpn-deploy: tf-add-backend tf-validate tf-plan tf-apply
 	@echo "Please, check your email for AWS SES subscription confirmation"
 	@echo "Once confirmed, you will receive an email with your VPN configuration after 2 minutes"
