@@ -6,8 +6,13 @@ def lambda_handler(event, context):
     ec2 = boto3.client('ec2')
     instance_id = event['instance_id']
     ec2.terminate_instances(InstanceIds=[instance_id])
-    
-    # Delete the event rule
+
+    # Release the elastic IP address
+    eip = boto3.client('ec2')
+    eip_id = event['eip_id']
+    eip.release_address(AllocationId=eip_id)
+
+    # Identify the event rule
     events = boto3.client('events')
     rule_id = event['rule_id']
 
@@ -19,7 +24,18 @@ def lambda_handler(event, context):
     if target_ids:
         response2 = events.remove_targets(Rule=rule_id, Ids=target_ids)
 
-    # Delete the rule
+    # Delete the event rule
     response3 = events.delete_rule(Name=rule_id)
 
-    return 'Instance terminated'
+    # Send email notification
+    ses = boto3.client('ses')
+    email_address = event['email_address']
+    destination = {'ToAddresses': [ email_address ]}
+    message = {
+        'Subject': {'Data': 'VPN server terminated'},
+        'Body': {'Text': {'Data': 'The VPN server has been terminated'}}
+    }
+    source = email_address
+    ses.send_email(Destination=destination, Message=message, Source=source)
+
+    return 'Success'

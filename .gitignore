@@ -1,8 +1,6 @@
 tfplan.out
+05-backend.tf
 .terraform/
 terraform.tfstate*
-.ssh/
 .aws/
-docker-compose_updated.yaml
-wireguard.conf
 terminate_instance.zip

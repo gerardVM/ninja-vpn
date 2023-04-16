@@ -9,8 +9,8 @@ Ninja VPN is a really simple volatile VPN server that uses Wireguard in AWS ec2 
 If you are used to Terraform and AWS, you can use the Makefile to build and destroy the VPN server. Remember editing the config.yaml file with your desired configuration.
 
 ```bash
-make build-vpn
-make destroy-vpn
+make vpn-deploy # Create and deploy the VPN server
+make tf-destroy # Destroy the VPN server
 ```
 
 In case you don't have Terraform installed, you can use Docker to build and destroy the VPN server as follows:
@@ -31,17 +31,17 @@ cd ninja-vpn
 
 3. Create a Docker container with all necessary tools and permissions.
 ```bash
-docker build -t ninja-vpn-deployer -f ops/docker/Dockerfile.deployer .
+docker build -t ninja-vpn-deployer -f Dockerfile.deployer .
 ```
 
 4. Build the VPN server by using the Docker container
 ```bash
-docker run -it --rm -v $(pwd):/ninja-vpn ninja-vpn-deployer "make build-vpn"
+docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn-deploy"
 ```
 
 5. Once you don't need the VPN anymore, destroy the server by using the Docker container again.
 ```bash
-docker run -it --rm -v $(pwd):/ninja-vpn ninja-vpn-deployer "make destroy-vpn"
+docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make tf-destroy"
 ```
 
 ## Usage
@@ -49,14 +49,14 @@ docker run -it --rm -v $(pwd):/ninja-vpn ninja-vpn-deployer "make destroy-vpn"
 Use commands to manage your VPN server:
 
 ```bash
-make build-vpn   # Create a new VPN server
-make destroy-vpn # Destroy the VPN server
+make vpn-deploy # Create and deploy the VPN server
+make tf-destroy # Destroy the VPN server
 ```
 
-Configure your Wireguard client with the provided info:
+Configure your Wireguard client with the info sent into your email:
 
 - For Android: Scan the QR code with the Wireguard app.
-- For Desktop: Import the freshly created wireguard.conf file with the Wireguard app.
+- For Desktop: Import the attached config file into the Wireguard app.
 
 ## Countdown feature (optional)
 
