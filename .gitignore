@@ -1,5 +1,4 @@
 tfplan.out
-05-backend.tf
 .terraform/
 terraform.tfstate*
 .aws/
