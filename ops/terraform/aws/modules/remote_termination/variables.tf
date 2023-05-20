@@ -1,3 +1,8 @@
+variable "function_name" {
+    type        = string
+    description = "The name of the lambda function."
+}
+
 variable "instance_id" {
     type        = string
     description = "The ID of the instance to terminate."
@@ -11,11 +16,6 @@ variable "eip_id" {
 variable "email" {
     type        = string
     description = "The email address to send the notification to."
-}
-
-variable "countdown" {
-    type        = string
-    description = "The time to wait before the instance is terminated."
 }
 
 variable "tags" {

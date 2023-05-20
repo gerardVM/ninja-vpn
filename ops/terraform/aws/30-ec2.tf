@@ -2,6 +2,7 @@ data "template_file" "install_vpn" {
   template = file("${path.module}/files/install-vpn.sh")
 
   vars = {
+    NAME          = local.config.name
     SERVERURL     = aws_eip.eip.public_dns
     TIMEZONE      = local.config.my_timezone
     DOCKER_CONFIG = "/root/.docker"
@@ -9,6 +10,7 @@ data "template_file" "install_vpn" {
     S3_DC_KEY     = aws_s3_object.docker-compose.key
     S3_CE_KEY     = aws_s3_object.config_email.key
     EMAIL_ADDRESS = local.config.email
+    COUNTDOWN     = try(local.config.countdown, "0")
   }
 }
 

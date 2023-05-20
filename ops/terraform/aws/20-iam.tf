@@ -28,6 +28,11 @@ resource "aws_iam_role_policy_attachment" "ses_role_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSESFullAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "ec2_role_policy_attachment" {
+  role       = aws_iam_role.role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
+}
+
 resource "aws_iam_instance_profile" "profile" {
   name = "ninja-vpn-profile"
   role = aws_iam_role.role.name
