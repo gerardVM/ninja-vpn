@@ -17,7 +17,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 
 resource "aws_lambda_function" "terminate_instance_lambda" {
   filename         = "${path.module}/terminate_instance.zip"
-  function_name    = "terminate_instance"
+  function_name    = var.function_name
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "terminate_instance.lambda_handler"
   runtime          = "python3.8"

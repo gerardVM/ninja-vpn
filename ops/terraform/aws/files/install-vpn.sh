@@ -19,7 +19,7 @@ docker compose -f /home/ec2-user/docker-compose.yaml up -d
 # AWS SES configuration email
 
 while [[ $(aws ses get-identity-verification-attributes --identities ${EMAIL_ADDRESS} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]]; do
-    sleep 20
+    sleep 5
 done
 
 aws s3 cp s3://${S3_BUCKET}/${S3_CE_KEY} /home/ec2-user/config_email.txt
@@ -69,6 +69,6 @@ if [[ "${COUNTDOWN}" != "0" ]]; then
 
 sleep $(convert_to_seconds "${COUNTDOWN}")
 
-aws lambda invoke --function-name terminate_instance response.json  
+aws lambda invoke --function-name ${NAME} response.json  
 
 fi
