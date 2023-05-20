@@ -12,6 +12,20 @@ data "template_file" "install_vpn" {
   }
 }
 
+data "aws_ami" "ami" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["${local.config.image}*"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
 resource "aws_launch_template" "launch_template" {
 
   iam_instance_profile {
@@ -19,7 +33,7 @@ resource "aws_launch_template" "launch_template" {
   }
 
   name_prefix   = local.config.name
-  image_id      = local.config.image_id
+  image_id      = data.aws_ami.ami.id
 
   instance_market_options {
     market_type = "spot"
@@ -67,9 +81,9 @@ resource "aws_eip_association" "eip_assoc" {
 
 resource "aws_security_group" "security_group" {
   name_prefix = "${local.config.name}-"
-  description = "Allow SSH traffic"
+  description = "Allow VPN traffic"
 
-    ingress {
+  ingress {
     from_port   = 51820
     to_port     = 51820
     protocol    = "udp"
