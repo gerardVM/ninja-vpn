@@ -62,6 +62,8 @@ Configure your Wireguard client with the info sent into your email:
 
 The VPN server will be automatically destroyed after a certain amount of time. You can configure this time in the config.yaml file.
 
+Check [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#RateExpressions) for more info about the rate expression syntax.
+
 ## Contributing
 
 Pull requests are welcome

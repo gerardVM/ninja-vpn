@@ -9,6 +9,7 @@ data "template_file" "install_vpn" {
     S3_DC_KEY     = aws_s3_object.docker-compose.key
     S3_CE_KEY     = aws_s3_object.config_email.key
     EMAIL_ADDRESS = local.config.email
+    COUNTDOWN     = try(local.config.countdown, "0")
   }
 }
 
