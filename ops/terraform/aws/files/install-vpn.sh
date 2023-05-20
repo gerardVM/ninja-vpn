@@ -18,7 +18,7 @@ docker compose -f /home/ec2-user/docker-compose.yaml up -d
 
 # AWS SES configuration email
 
-while [[ $(aws ses get-identity-verification-attributes --identities ${EMAIL_ADDRESS} | grep verificationStatus | awk '{print $2}' | tr -d '"') == "Pending" ]]; do
+while [[ $(aws ses get-identity-verification-attributes --identities ${EMAIL_ADDRESS} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]]; do
     sleep 20
 done
 
