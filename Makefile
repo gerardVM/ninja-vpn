@@ -20,9 +20,6 @@ tf-output:
 vpn-destroy:
 	@cd ${TF_DIR} && terraform destroy
 
-tf-add-backend:
-	@./ops/scripts/s3-backend.sh > ${TF_DIR}/05-backend.tf
-
 vpn-deploy: tf-validate tf-plan tf-apply
 	@echo "Please, check your email for AWS SES subscription confirmation"
 	@echo "Once confirmed, you will receive an email with your VPN configuration after 2 minutes"
