@@ -36,12 +36,12 @@ docker build -t ninja-vpn-deployer -f Dockerfile.deployer .
 
 4. Build the VPN server by using the Docker container
 ```bash
-docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn-deploy"
+docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn-deploy USER=<username>"
 ```
 
 5. Once you don't need the VPN anymore, destroy the server by using the Docker container again.
 ```bash
-docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn-destroy"
+docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn-destroy USER=<username>"
 ```
 
 ## Usage
@@ -49,8 +49,8 @@ docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make 
 Use commands to manage your VPN server:
 
 ```bash
-make vpn-deploy # Create and deploy the VPN server
-make vpn-destroy # Destroy the VPN server
+make vpn-deploy USER=<username> # Create and deploy the VPN server for a specific user
+make vpn-destroy USER=<username> # Destroy the VPN server for a specific user
 ```
 
 Configure your Wireguard client with the info sent into your email:

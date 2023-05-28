@@ -1,0 +1,7 @@
+name: "ninja-vpn"                   # Name for your resources
+image: "al2023-ami-2023"            # Amazon Linux 2023 (Default x86_64)
+instance_type: "t2.micro"           # Around $0,13 per 24h
+existing_data:
+  region: "eu-west-3"
+  bucket: "ninja-vpn-resources"
+  ses_sender: "sender@example.com"        

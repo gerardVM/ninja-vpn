@@ -18,7 +18,7 @@ docker compose -f /home/ec2-user/docker-compose.yaml up -d
 
 # AWS SES configuration email
 
-while [[ $(aws ses get-identity-verification-attributes --identities ${EMAIL_ADDRESS} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]]; do
+while [[ $(aws ses get-identity-verification-attributes --region ${SENDER_EMAIL_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]]; do
     sleep 5
 done
 
@@ -26,14 +26,15 @@ aws s3 cp s3://${S3_BUCKET}/${S3_CE_KEY} /home/ec2-user/config_email.txt
 docker exec wireguard cat /config/peer1/peer1.conf > /home/ec2-user/wg-client.conf
 qrencode -t png -o /home/ec2-user/user-qr.png -r /home/ec2-user/wg-client.conf
 
-export EMAIL_ADDRESS=${EMAIL_ADDRESS}
+export SENDER_EMAIL=${SENDER_EMAIL}
+export RECEIVER_EMAIL=${RECEIVER_EMAIL}
 export subject="VPN Credentials"
 export file_data=$(base64 /home/ec2-user/wg-client.conf)
 export image_data=$(base64 /home/ec2-user/user-qr.png)
 
-envsubst '$EMAIL_ADDRESS,$subject,$file_data,$image_data' < /home/ec2-user/config_email.txt > /home/ec2-user/email.txt
+envsubst '$SENDER_EMAIL,$RECEIVER_EMAIL,$subject,$file_data,$image_data' < /home/ec2-user/config_email.txt > /home/ec2-user/email.txt
 
-aws ses send-raw-email --raw-message Data="$(echo -n "$(cat /home/ec2-user/email.txt)" | base64 -w 0)"
+aws ses send-raw-email --region ${SENDER_EMAIL_REGION} --raw-message Data="$(echo -n "$(cat /home/ec2-user/email.txt)" | base64 -w 0)"
 
 # Managing the instance lifecycle
 

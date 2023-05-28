@@ -1,5 +1,5 @@
-From: $EMAIL_ADDRESS
-To: $EMAIL_ADDRESS
+From: $SENDER_EMAIL
+To: $RECEIVER_EMAIL
 Subject: $subject
 MIME-Version: 1.0
 Content-Type: multipart/related; boundary=boundary-1
