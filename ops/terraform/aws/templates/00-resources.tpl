@@ -10,7 +10,7 @@ terraform {
 
   backend "s3" {
     bucket         = "ninja-vpn-tfstate"
-    key            = <BACKEND_KEY>
+    key            = "<USER>/<REGION>/terraform.tfstate"
     region         = "eu-west-3"
     encrypt        = true
   }

@@ -1,9 +1,10 @@
 TF_COMPONENT    ?= aws
 TF_DIR          := ${PWD}/ops/terraform/${TF_COMPONENT}
+REGION           = $(shell yq -r '.region' ./users/${USER}.yaml)
 
 set_user:
 	@cat ./common.yaml > ./config.yaml && cat ./users/${USER}.yaml >> ./config.yaml
-	@cd ${TF_DIR} && sed 's/<BACKEND_KEY>/"${USER}"/g' ./templates/00-resources.tpl > ./00-resources.tf
+	@cd ${TF_DIR} && sed 's|<USER>/<REGION>|${USER}/${REGION}|g' ./templates/00-resources.tpl > ./00-resources.tf
 
 tf-init: set_user
 	@cd ${TF_DIR} && terraform init -reconfigure
