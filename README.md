@@ -64,6 +64,10 @@ The VPN server will be automatically destroyed after a certain amount of time. Y
 
 Check [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#RateExpressions) for more info about the rate expression syntax.
 
+## Caveats
+
+- Because of sending email restrictions, recipient emails will be automatically modified and will have the following format: <username>+<aws-region>@<your-email-provider.com>. This implies that just email services that support this feature will be able to receive the email.
+
 ## Contributing
 
 Pull requests are welcome

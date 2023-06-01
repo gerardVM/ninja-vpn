@@ -17,7 +17,7 @@ def lambda_handler(event, context):
 
     # Send email notification
     sender_email = os.environ.get('SENDER_EMAIL')
-    region = os.environ.get('SENDER_REGION')
+    region = os.environ.get('SES_REGION')
     receiver_email = os.environ.get('RECEIVER_EMAIL')
 
     destination = {'ToAddresses': [ receiver_email ]}

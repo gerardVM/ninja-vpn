@@ -8,8 +8,8 @@ module "remote_termination" {
   instance_id    = aws_instance.ec2_instance.id
   eip_id         = aws_eip.eip.id
   sender_email   = local.config.existing_data.ses_sender
-  sender_region  = local.config.existing_data.region
-  receiver_email = local.config.email
+  receiver_email = aws_sesv2_email_identity.email_notifications.email_identity
+  ses_region     = local.config.existing_data.region
 
   depends_on     = [aws_instance.ec2_instance]
   

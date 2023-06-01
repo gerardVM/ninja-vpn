@@ -23,7 +23,7 @@ variable "sender_email" {
     description = "The email address that the notification is sent from."
 }
 
-variable "sender_region" {
+variable "ses_region" {
     type        = string
     description = "The AWS region that the notification is sent from."
 }

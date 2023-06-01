@@ -29,7 +29,7 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
       INSTANCE_ID    = var.instance_id
       EIP_ID         = var.eip_id
       SENDER_EMAIL   = var.sender_email
-      SENDER_REGION  = var.sender_region
+      SES_REGION     = var.ses_region
       RECEIVER_EMAIL = var.receiver_email
     }
   }

@@ -18,7 +18,12 @@ docker compose -f /home/ec2-user/docker-compose.yaml up -d
 
 # AWS SES configuration email
 
-while [[ $(aws ses get-identity-verification-attributes --region ${SENDER_EMAIL_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]]; do
+touch /home/ec2-user/${SES_REGION}.txt
+touch /home/ec2-user/${SENDER_EMAIL}.txt
+touch /home/ec2-user/${RECEIVER_EMAIL}.txt
+
+while [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ||
+      [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${RECEIVER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ; do
     sleep 5
 done
 
@@ -28,13 +33,14 @@ qrencode -t png -o /home/ec2-user/user-qr.png -r /home/ec2-user/wg-client.conf
 
 export SENDER_EMAIL=${SENDER_EMAIL}
 export RECEIVER_EMAIL=${RECEIVER_EMAIL}
+export AWS_REGION=${CURRENT_REGION}
 export subject="VPN Credentials"
 export file_data=$(base64 /home/ec2-user/wg-client.conf)
 export image_data=$(base64 /home/ec2-user/user-qr.png)
 
-envsubst '$SENDER_EMAIL,$RECEIVER_EMAIL,$subject,$file_data,$image_data' < /home/ec2-user/config_email.txt > /home/ec2-user/email.txt
+envsubst '$SENDER_EMAIL,$RECEIVER_EMAIL,$AWS_REGION,$subject,$file_data,$image_data' < /home/ec2-user/config_email.txt > /home/ec2-user/email.txt
 
-aws ses send-raw-email --region ${SENDER_EMAIL_REGION} --raw-message Data="$(echo -n "$(cat /home/ec2-user/email.txt)" | base64 -w 0)"
+aws ses send-raw-email --region ${SES_REGION} --raw-message Data="$(echo -n "$(cat /home/ec2-user/email.txt)" | base64 -w 0)"
 
 # Managing the instance lifecycle
 

@@ -2,7 +2,8 @@ data "template_file" "install_vpn" {
   template = file("${path.module}/files/install-vpn.sh")
 
   vars = {
-    NAME                = "${local.config.name}-${split("@", local.config.email)[0]}"
+    NAME                = "${local.config.name}-${split("@", local.config.email)[0]}-${local.config.region}"
+    CURRENT_REGION      = local.config.region
     SERVERURL           = aws_eip.eip.public_dns
     TIMEZONE            = local.config.timezone
     DOCKER_CONFIG       = "/root/.docker"
@@ -10,8 +11,8 @@ data "template_file" "install_vpn" {
     S3_DC_KEY           = aws_s3_object.docker-compose.key
     S3_CE_KEY           = aws_s3_object.config_email.key
     SENDER_EMAIL        = local.config.existing_data.ses_sender
-    SENDER_EMAIL_REGION = local.config.existing_data.region
-    RECEIVER_EMAIL      = local.config.email
+    RECEIVER_EMAIL      = aws_sesv2_email_identity.email_notifications.email_identity
+    SES_REGION          = local.config.existing_data.region
     COUNTDOWN           = try(local.config.countdown, "0")
   }
 }
