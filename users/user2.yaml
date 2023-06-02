@@ -1,7 +1,7 @@
-region: "es-east-2"                 # Choose an AWS region 
+region: "eu-west-3"                 # Choose an AWS region 
 timezone: "Europe/Madrid"           # Choose your timezone
-email: "user2@example.com"          # Email to send the connection details
-countdown: "2 hours"                # Countdown to terminate the instance (Optional)
+email: "valverdegerard@gmail.com"   # Email to send the connection details
+countdown: "4 minutes"              # Countdown to terminate the instance (Optional)
 
 # Available regions are:
 
