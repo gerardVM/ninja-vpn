@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Testing defautl vars
-        run: echo ${{ github.head_ref }}
+        run: echo ${{ github.head_ref }} ; echo ${{ github.ref }} ; echo ${{ github.base_ref }}
       # - name: Set up AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v1
       #   with:
