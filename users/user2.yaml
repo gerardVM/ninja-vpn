@@ -1,5 +1,5 @@
 
-action: "destroy"                    # deploy | destroy
+action: "deploy"                    # deploy | destroy
 
 
 email: "valverdegerard@gmail.com"   # Email to send the connection details
