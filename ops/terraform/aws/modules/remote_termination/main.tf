@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_execution_role" {
-  name = "lambda_execution_role"
+  name = "lambda_execution-${var.suffix}"
   
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -16,8 +16,8 @@ resource "aws_iam_role" "lambda_execution_role" {
 }
 
 resource "aws_lambda_function" "terminate_instance_lambda" {
+  function_name    = "${var.function_name}-${var.suffix}"
   filename         = "${path.module}/terminate_instance.zip"
-  function_name    = var.function_name
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "terminate_instance.lambda_handler"
   runtime          = "python3.8"
@@ -26,9 +26,11 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
 
   environment {
     variables = {
-      INSTANCE_ID   = var.instance_id
-      EIP_ID        = var.eip_id
-      EMAIL_ADDRESS = var.email
+      INSTANCE_ID    = var.instance_id
+      EIP_ID         = var.eip_id
+      SENDER_EMAIL   = var.sender_email
+      SES_REGION     = var.ses_region
+      RECEIVER_EMAIL = var.receiver_email
     }
   }
 
@@ -42,7 +44,7 @@ data "archive_file" "lambda_function" {
 }
 
 resource "aws_iam_policy" "termination_policy" {
-  name        = "cloudwatch_policy"
+  name        = "cloudwatch_policy-${var.suffix}"
   description = "Allows Lambda to delete a CloudWatch event rule and terminate an EC2 instance"
   
   policy = jsonencode({

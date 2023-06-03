@@ -3,3 +3,4 @@ tfplan.out
 terraform.tfstate*
 .aws/
 terminate_instance.zip
+00-resources.tf

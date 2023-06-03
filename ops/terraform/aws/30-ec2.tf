@@ -2,15 +2,18 @@ data "template_file" "install_vpn" {
   template = file("${path.module}/files/install-vpn.sh")
 
   vars = {
-    NAME          = local.config.name
-    SERVERURL     = aws_eip.eip.public_dns
-    TIMEZONE      = local.config.my_timezone
-    DOCKER_CONFIG = "/root/.docker"
-    S3_BUCKET     = aws_s3_bucket.bucket.bucket
-    S3_DC_KEY     = aws_s3_object.docker-compose.key
-    S3_CE_KEY     = aws_s3_object.config_email.key
-    EMAIL_ADDRESS = local.config.email
-    COUNTDOWN     = try(local.config.countdown, "0")
+    NAME                = "${local.config.name}-${split("@", local.config.email)[0]}-${local.config.region}"
+    CURRENT_REGION      = local.config.region
+    SERVERURL           = aws_eip.eip.public_dns
+    TIMEZONE            = local.config.timezone
+    DOCKER_CONFIG       = "/root/.docker"
+    S3_BUCKET           = data.aws_s3_bucket.bucket.bucket
+    S3_DC_KEY           = aws_s3_object.docker-compose.key
+    S3_CE_KEY           = aws_s3_object.config_email.key
+    SENDER_EMAIL        = local.config.existing_data.ses_sender
+    RECEIVER_EMAIL      = aws_sesv2_email_identity.email_notifications.email_identity
+    SES_REGION          = local.config.existing_data.region
+    COUNTDOWN           = try(local.config.countdown, "0")
   }
 }
 
@@ -82,7 +85,7 @@ resource "aws_eip_association" "eip_assoc" {
 }
 
 resource "aws_security_group" "security_group" {
-  name_prefix = "${local.config.name}-"
+  name_prefix = "${local.config.name}-${split("@", local.config.email)[0]}-"
   description = "Allow VPN traffic"
 
   ingress {

@@ -1,5 +1,5 @@
 resource "aws_iam_role" "role" {
-  name = "ninja-vpn-role"
+  name = "ninja-vpn-${split("@", local.config.email)[0]}-${local.config.region}"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -34,6 +34,6 @@ resource "aws_iam_role_policy_attachment" "ec2_role_policy_attachment" {
 }
 
 resource "aws_iam_instance_profile" "profile" {
-  name = "ninja-vpn-profile"
+  name = "ninja-vpn-${split("@", local.config.email)[0]}-${local.config.region}"
   role = aws_iam_role.role.name
 }
