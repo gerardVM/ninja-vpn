@@ -1,5 +1,6 @@
 TF_COMPONENT    ?= aws
 TF_DIR          := ${PWD}/ops/terraform/${TF_COMPONENT}
+USER            ?= username
 REGION           = $(shell yq -r '.region' ./users/${USER}.yaml)
 
 set_user:
