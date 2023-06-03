@@ -1,27 +1,29 @@
-name: deployment
+# Working example of a pipeline that triggers on push to user/<username> branches:
 
-on:
-  push:
-    branches:
-      - user/*
+# name: deployment
 
-jobs:
+# on:
+#   push:
+#     branches:
+#       - user/*
 
-  deploy-vpn:
-    name: Full vpn deployment
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.4.4
-      - name: Terraform Deploy
-        run: make vpn USER=$( echo ${{ github.ref }} | cut -d'/' -f4- )
+# jobs:
+
+#   deploy-vpn:
+#     name: Full vpn deployment
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
+#       - name: Set up AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: us-east-1
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v2
+#         with:
+#           terraform_version: 1.4.4
+#       - name: Terraform Deploy
+#         run: make vpn USER=$( echo ${{ github.ref }} | cut -d'/' -f4- )

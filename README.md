@@ -6,11 +6,10 @@ Ninja VPN is a really simple volatile VPN server that uses Wireguard in an AWS e
 
 ## Installation
 
-If you are used to Terraform and AWS, you can use the Makefile to build and destroy the VPN server. Remember editing the config.yaml file with your desired configuration.
+If you are used to Terraform and AWS, you can use the Makefile to build and destroy the VPN server. Edit the `users/<username>.yaml` file with user's desired configuration and run:
 
 ```bash
-make vpn-deploy # Create and deploy the VPN server
-make vpn-destroy # Destroy the VPN server
+make vpn USER=<username>
 ```
 
 In case you don't have Terraform installed, you can use Docker to build and destroy the VPN server as follows:
@@ -27,46 +26,42 @@ docker run -it --rm -v $(pwd):/git alpine/git clone https://github.com/gerardVM/
 cd ninja-vpn
 ```
 
-2. Fill up the config.yaml file with your desired configuration and the /ops/.aws/credentials file with your AWS credentials. 
-
-3. Create a Docker container with all necessary tools and permissions.
+2. Fill up the `ops/.aws/credentials` file with your AWS credentials and create a Docker container with all necessary tools and permissions:
 ```bash
 docker build -t ninja-vpn-deployer -f Dockerfile.deployer .
 ```
 
-4. Build the VPN server by using the Docker container
-```bash
-docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn-deploy USER=<username>"
-```
+3. Fill up the `users/<username>.yaml` file with your user's desired configuration. You can decide there if you want to deploy or destroy the VPN server.
 
-5. Once you don't need the VPN anymore, destroy the server by using the Docker container again.
+4. Build/Destroy the VPN server by using the Docker container
 ```bash
-docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn-destroy USER=<username>"
+docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn USER=<username>"
 ```
 
 ## Usage
 
-Use commands to manage your VPN server:
+Edit `users/<username>.yaml` file and run following command to deploy/destroy your VPN server:
 
 ```bash
-make vpn-deploy USER=<username> # Create and deploy the VPN server for a specific user
-make vpn-destroy USER=<username> # Destroy the VPN server for a specific user
+make vpn USER=<username>    # Deploy/Destroy user's desired configuration for the VPN server
 ```
 
-Configure your Wireguard client with the info sent into your email:
+Users can now configure their Wireguard client with the info sent into their email:
 
 - For Android: Scan the QR code with the Wireguard app.
 - For Desktop: Import the attached config file into the Wireguard app.
 
 ## Countdown feature (optional)
 
-The VPN server will be automatically destroyed after a certain amount of time. You can configure this time in the config.yaml file.
+The VPN server will be automatically destroyed after a certain amount of time. You can configure this time in the `users/<username>.yaml` file.
 
 Check [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#RateExpressions) for more info about the rate expression syntax.
 
 ## Caveats
 
-- Because of sending email restrictions, recipient emails will be automatically modified and will have the following format: <username>+<aws-region>@<your-email-provider.com>. This implies that just email services that support this feature will be able to receive the email.
+- Because of the multiuser implementation, some infrastructure like a bucket for resources, a bucket for the backend and a SES service for the sender email need to be set in advance. The configuration that defines those resources can be found in the common.yaml file.
+
+- Because AWS restrictions over sending emails, recipient emails will be automatically modified and will have the following format: `example+<aws-region>@example.com`. This implies that just email providers that support this feature will be able to receive the configuration emails.
 
 ## Contributing
 

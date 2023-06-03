@@ -2,10 +2,10 @@
 action: "deploy"                    # deploy | destroy
 
 
-email: "valverdegerard@gmail.com"   # Email to send the connection details
+email: "example.user@example.com"   # Email to send the connection details
 timezone: "Europe/Madrid"           # Choose your timezone
-countdown: "4 minutes"              # Countdown to terminate the instance (Optional)
-region: "eu-west-3"                 # Choose an AWS region
+countdown: "40 minutes"             # Countdown to terminate the instance (Optional)
+region: "us-east-1"                 # Choose an AWS region
 
 # Available regions are:
 
