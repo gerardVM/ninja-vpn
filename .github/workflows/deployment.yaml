@@ -8,13 +8,13 @@ on:
 jobs:
 
   install-terraform:
-    name: Install Terraform
+    name: Full deployment
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Testing defautl vars
-        run: echo ${GITHUB_HEAD_REF}
+        run: echo ${{ github.head_ref }}
       # - name: Set up AWS credentials
       #   uses: aws-actions/configure-aws-credentials@v1
       #   with:
