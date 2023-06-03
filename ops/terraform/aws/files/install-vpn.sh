@@ -18,10 +18,6 @@ docker compose -f /home/ec2-user/docker-compose.yaml up -d
 
 # AWS SES configuration email
 
-touch /home/ec2-user/${SES_REGION}.txt
-touch /home/ec2-user/${SENDER_EMAIL}.txt
-touch /home/ec2-user/${RECEIVER_EMAIL}.txt
-
 while [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ||
       [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${RECEIVER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ; do
     sleep 5

@@ -23,8 +23,11 @@ tf-output: set_user
 	@cd ${TF_DIR} && terraform output -json
 
 vpn-destroy: set_user tf-init
-	@cd ${TF_DIR} && terraform destroy
+	@cd ${TF_DIR} && terraform destroy -auto-approve
 
 vpn-deploy: tf-validate tf-plan tf-apply
 	@echo "Please, check your email for AWS SES subscription confirmation"
 	@echo "Once confirmed, you will receive an email with your VPN configuration after 2 minutes"
+
+vpn:
+	./ops/scripts/action.sh ${USER}

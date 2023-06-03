@@ -1,7 +1,11 @@
-region: "eu-west-3"                 # Choose an AWS region 
-timezone: "Europe/Madrid"           # Choose your timezone
+
+action: "destroy"                    # deploy | destroy
+
+
 email: "valverdegerard@gmail.com"   # Email to send the connection details
+timezone: "Europe/Madrid"           # Choose your timezone
 countdown: "4 minutes"              # Countdown to terminate the instance (Optional)
+region: "eu-west-3"                 # Choose an AWS region
 
 # Available regions are:
 

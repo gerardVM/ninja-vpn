@@ -4,4 +4,4 @@ instance_type: "t2.micro"           # Around $0,13 per 24h
 existing_data:
   region: "eu-west-3"
   bucket: "ninja-vpn-resources"
-  ses_sender: "valverdegerard+sender@example.com"        
+  ses_sender: "valverdegerard+sender@gmail.com"        
