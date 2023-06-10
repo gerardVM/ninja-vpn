@@ -3,7 +3,7 @@ module "remote_termination" {
   
   count          = local.countdown == null ? 0 : 1
 
-  suffix         = "${split("@", local.config.email)[0]}-${local.config.region}"
+  suffix         = "${replace(split("@", local.config.email)[0], ".", "-")}-${local.config.region}"
   function_name  = local.config.name
   instance_id    = aws_instance.ec2_instance.id
   eip_id         = aws_eip.eip.id

@@ -2,7 +2,7 @@ data "template_file" "install_vpn" {
   template = file("${path.module}/files/install-vpn.sh")
 
   vars = {
-    NAME                = "${local.config.name}-${split("@", local.config.email)[0]}-${local.config.region}"
+    NAME                = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-${local.config.region}"
     CURRENT_REGION      = local.config.region
     SERVERURL           = aws_eip.eip.public_dns
     TIMEZONE            = local.config.timezone
@@ -85,7 +85,7 @@ resource "aws_eip_association" "eip_assoc" {
 }
 
 resource "aws_security_group" "security_group" {
-  name_prefix = "${local.config.name}-${split("@", local.config.email)[0]}-"
+  name_prefix = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-"
   description = "Allow VPN traffic"
 
   ingress {
