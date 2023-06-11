@@ -9,7 +9,7 @@ aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id ${EIP_ID}
 
 # Spot Instance Interruption Handler
 
-cp s3 cp s3://${S3_BUCKET}/${S3_TS_KEY} /home/ec2-user/termination_script.sh
+aws s3 cp s3://${S3_BUCKET}/${S3_TS_KEY} /home/ec2-user/termination_script.sh
 chmod +x /home/ec2-user/termination_script.sh
 /bin/bash /home/ec2-user/termination_script.sh &
 

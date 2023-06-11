@@ -12,21 +12,17 @@ handle_interruption() {
   # 2. Backup important data or state
   # 3. Send notifications or log the interruption
   
-  echo "Spot Instance with ID $instance_id is being interrupted" >> /home/ec2-user/spot-interruption.log
-  echo "Taking necessary actions..." >> /home/ec2-user/spot-interruption.log
-  
+  echo -e "Spot Instance with ID $instance_id is being interrupted. Taking necessary actions..." >> /home/ec2-user/spot-interruption.log
+
   # Disassociate the Elastic IP from the instance
-  aws ec2 disassociate-address --association-id \
-  $(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/network/interfaces/macs/$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/mac)/association-id)
+
+  ASSOCIATION_ID=$(aws ec2 describe-addresses --filters "Name=instance-id,Values=$instance_id" --query 'Addresses[*].AssociationId' --output text)
+  aws ec2 disassociate-address --association-id $ASSOCIATION_ID >> /home/ec2-user/spot-interruption.log
+  echo -e "Disassociated Elastic IP from instance $instance_id" >> /home/ec2-user/spot-interruption.log
 }
 
 # Main script
 
-# Define variables
-TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 1"`
-INSTANCE_ID=`curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id`
-
-# Check if the script is running on a Spot Instance
 while true; do
   # Get the token
   TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 1")
@@ -35,7 +31,7 @@ while true; do
   if curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/spot/instance-action | grep -q "terminate"; then
   
     # Call the interruption handler function
-    handle_interruption "$INSTANCE_ID"
+    handle_interruption `curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id`
   
     # Add any additional cleanup or termination steps if needed
     # For example, you might want to deregister from a load balancer
