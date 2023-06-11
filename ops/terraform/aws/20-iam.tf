@@ -20,7 +20,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "s3_role_policy_policy" {
   role       = aws_iam_role.role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "ses_role_policy_attachment" {
@@ -28,9 +28,14 @@ resource "aws_iam_role_policy_attachment" "ses_role_policy_attachment" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSESFullAccess"
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_role_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "lambda_role_policy_attachment" {
   role       = aws_iam_role.role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_role_policy_attachment" {
+  role       = aws_iam_role.role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
 }
 
 resource "aws_iam_instance_profile" "profile" {

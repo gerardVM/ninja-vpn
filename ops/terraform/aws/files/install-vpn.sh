@@ -1,8 +1,22 @@
 #!/bin/sh
 
-# Install Docker and Compose Wireguard VPN
+# Associate Elastic IP
 
-yum install -y docker qrencode
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 1"`
+INSTANCE_ID=`curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id`
+aws ec2 associate-address --instance-id $INSTANCE_ID --allocation-id ${EIP_ID}
+
+
+# Spot Instance Interruption Handler
+
+cp s3 cp s3://${S3_BUCKET}/${S3_TS_KEY} /home/ec2-user/termination_script.sh
+chmod +x /home/ec2-user/termination_script.sh
+/bin/bash /home/ec2-user/termination_script.sh &
+
+
+# Install Docker
+
+yum install -y docker
 systemctl start docker
 
 mkdir -p ${DOCKER_CONFIG}/cli-plugins
@@ -10,11 +24,19 @@ curl -SL https://github.com/docker/compose/releases/download/v2.17.2/docker-comp
 chmod +x ${DOCKER_CONFIG}/cli-plugins/docker-compose
 setfacl --modify user:ec2-user:rw /var/run/docker.sock
 
+
+# Prepare Wireguard configuration and launch it
+
 echo SERVERURL=${SERVERURL} > /home/ec2-user/.env
 echo TZ=${TIMEZONE}        >> /home/ec2-user/.env
 
+# aws s3 cp s3://${S3_BUCKET}/$S3_WC_KEY /home/ec2-user/$S3_WC_KEY
+# aws kms decrypt --ciphertext-blob fileb://<(base64 -d /home/ec2-user/$S3_WC_KEY) --output text --query Plaintext | base64 -d > /home/ec2-user/wireguard_config.zip
+# unzip /home/ec2-user/wireguard_config.zip -d /root/wireguard
+
 aws s3 cp s3://${S3_BUCKET}/${S3_DC_KEY} /home/ec2-user/docker-compose.yaml &&
 docker compose -f /home/ec2-user/docker-compose.yaml up -d
+
 
 # AWS SES configuration email
 
@@ -24,8 +46,8 @@ while [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} -
 done
 
 aws s3 cp s3://${S3_BUCKET}/${S3_CE_KEY} /home/ec2-user/config_email.txt
-docker exec wireguard cat /config/peer1/peer1.conf > /home/ec2-user/wg-client.conf
-qrencode -t png -o /home/ec2-user/user-qr.png -r /home/ec2-user/wg-client.conf
+cp /root/wireguard/peer1/peer1.conf /home/ec2-user/wg-client.conf
+cp /root/wireguard/peer1/peer1.png /home/ec2-user/user-qr.png
 
 export SENDER_EMAIL=${SENDER_EMAIL}
 export RECEIVER_EMAIL=${RECEIVER_EMAIL}
@@ -70,8 +92,9 @@ if [[ "${COUNTDOWN}" != "0" ]]; then
 
   )
 
-sleep $(convert_to_seconds "${COUNTDOWN}")
+sleep $(convert_to_seconds "${COUNTDOWN}") # This need to be adapted to the case of a instance termination
 
-aws lambda invoke --function-name ${NAME} response.json  
+PAYLOAD=$(echo -n "{\"INSTANCE_ID\": \"$INSTANCE_ID\"}" | base64)
+aws lambda invoke --function-name ${NAME} --payload $PAYLOAD /home/ec2-user/response.json
 
 fi

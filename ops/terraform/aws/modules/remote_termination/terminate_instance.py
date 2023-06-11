@@ -4,7 +4,7 @@ import os
 def lambda_handler(event, context):
 
     # Terminate the instance
-    instance_id = os.environ.get('INSTANCE_ID')
+    instance_id = event.get('INSTANCE_ID')
 
     ec2 = boto3.client('ec2')
     ec2.terminate_instances(InstanceIds=[instance_id])

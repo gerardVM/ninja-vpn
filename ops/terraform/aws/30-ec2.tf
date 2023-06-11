@@ -3,6 +3,7 @@ data "template_file" "install_vpn" {
 
   vars = {
     NAME                = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-${local.config.region}"
+    EIP_ID              = aws_eip.eip.id
     CURRENT_REGION      = local.config.region
     SERVERURL           = aws_eip.eip.public_dns
     TIMEZONE            = local.config.timezone
@@ -10,6 +11,7 @@ data "template_file" "install_vpn" {
     S3_BUCKET           = data.aws_s3_bucket.bucket.bucket
     S3_DC_KEY           = aws_s3_object.docker-compose.key
     S3_CE_KEY           = aws_s3_object.config_email.key
+    S3_TS_KEY           = aws_s3_object.termination_script.key
     SENDER_EMAIL        = local.config.existing_data.ses_sender
     RECEIVER_EMAIL      = aws_sesv2_email_identity.email_notifications.email_identity
     SES_REGION          = local.config.existing_data.region
@@ -79,14 +81,21 @@ resource "aws_eip" "eip" {
   vpc = true
 }
 
-resource "aws_eip_association" "eip_assoc" {
-  allocation_id = aws_eip.eip.id
-  instance_id   = aws_instance.ec2_instance.id
-}
+# resource "aws_eip_association" "eip_assoc" {
+#   allocation_id = aws_eip.eip.id
+#   instance_id   = aws_instance.ec2_instance.id
+# }
 
 resource "aws_security_group" "security_group" {
   name_prefix = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-"
   description = "Allow VPN traffic"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   ingress {
     from_port   = 51820

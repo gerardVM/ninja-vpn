@@ -26,7 +26,6 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
 
   environment {
     variables = {
-      INSTANCE_ID    = var.instance_id
       EIP_ID         = var.eip_id
       SENDER_EMAIL   = var.sender_email
       SES_REGION     = var.ses_region
