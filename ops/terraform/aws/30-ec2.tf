@@ -1,5 +1,5 @@
-data "template_file" "install_vpn" {
-  template = file("${path.module}/files/install-vpn.sh")
+data "template_file" "user_data" {
+  template = file("${path.module}/files/user_data.sh")
 
   vars = {
     NAME                = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-${local.config.region}"
@@ -11,7 +11,10 @@ data "template_file" "install_vpn" {
     S3_BUCKET           = data.aws_s3_bucket.bucket.bucket
     S3_DC_KEY           = aws_s3_object.docker-compose.key
     S3_CE_KEY           = aws_s3_object.config_email.key
-    S3_TS_KEY           = aws_s3_object.termination_script.key
+    S3_TH_KEY           = aws_s3_object.termination_handler.key
+    S3_IV_KEY           = aws_s3_object.install_vpn.key
+    S3_SE_KEY           = aws_s3_object.send_email.key
+    S3_CD_KEY           = aws_s3_object.countdown.key
     SENDER_EMAIL        = local.config.existing_data.ses_sender
     RECEIVER_EMAIL      = aws_sesv2_email_identity.email_notifications.email_identity
     SES_REGION          = local.config.existing_data.region
@@ -54,7 +57,7 @@ resource "aws_launch_template" "launch_template" {
 
   vpc_security_group_ids = [aws_security_group.security_group.id]
 
-  user_data = base64encode(data.template_file.install_vpn.rendered)
+  user_data = base64encode(data.template_file.user_data.rendered)
 
   tag_specifications {
     resource_type = "instance"
@@ -65,26 +68,57 @@ resource "aws_launch_template" "launch_template" {
   }
 }
 
-resource "aws_instance" "ec2_instance" {
+# resource "aws_instance" "ec2_instance" {
   
-  launch_template {
-    id              = aws_launch_template.launch_template.id
-    version         = "$Latest"
-  }
+#   launch_template {
+#     id              = aws_launch_template.launch_template.id
+#     version         = "$Latest"
+#   }
   
-  tags = {
-    Name            = local.config.name
+#   tags = {
+#     Name            = local.config.name
+#   }
+# }
+
+resource "aws_spot_fleet_request" "spot_fleet_request" {
+  iam_fleet_role = aws_iam_role.fleet_role.arn
+
+  launch_template_config {
+    launch_template_specification {
+      id      = aws_launch_template.launch_template.id
+      version = aws_launch_template.launch_template.latest_version
+    }
+    # overrides {
+    #   availability_zone = "*"
+    #   instance_requirements {
+    #     vcpu_count {
+    #       max = 2
+    #     }
+    #     memory_mib {
+    #       max = 4096
+    #     }
+    #   }
+    # }
   }
+
+  spot_maintenance_strategies {
+    capacity_rebalance {
+      replacement_strategy = "launch"
+    }
+  }
+
+  target_capacity = 1
+  allocation_strategy = "lowestPrice"
+  instance_interruption_behaviour = "terminate"
+  terminate_instances_on_delete = true
+  instance_pools_to_use_count = 1
+  # spot_price = "0.008"
+
 }
 
 resource "aws_eip" "eip" {
   vpc = true
 }
-
-# resource "aws_eip_association" "eip_assoc" {
-#   allocation_id = aws_eip.eip.id
-#   instance_id   = aws_instance.ec2_instance.id
-# }
 
 resource "aws_security_group" "security_group" {
   name_prefix = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-"

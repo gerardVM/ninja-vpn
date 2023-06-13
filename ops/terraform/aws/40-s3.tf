@@ -4,6 +4,14 @@ data "aws_s3_bucket" "bucket" {
   provider = aws.shared-infra
 }
 
+resource "aws_s3_object" "install_vpn" {
+  bucket = data.aws_s3_bucket.bucket.id
+  key    = "${local.config.region}/${local.config.email}/install-vpn.sh"
+  source = "files/scripts/install-vpn.sh"
+  
+  provider = aws.shared-infra
+}
+
 resource "aws_s3_object" "docker-compose" {
   bucket = data.aws_s3_bucket.bucket.id
   key    = "${local.config.region}/${local.config.email}/docker-compose.yaml"
@@ -11,6 +19,22 @@ resource "aws_s3_object" "docker-compose" {
   
   provider = aws.shared-infra
 
+}
+
+resource "aws_s3_object" "termination_handler" {
+  bucket = data.aws_s3_bucket.bucket.id
+  key    = "${local.config.region}/${local.config.email}/termination_handler.sh"
+  source = "files/scripts/termination_handler.sh"
+  
+  provider = aws.shared-infra
+}
+
+resource "aws_s3_object" "send_email" {
+  bucket = data.aws_s3_bucket.bucket.id
+  key    = "${local.config.region}/${local.config.email}/send-email.sh"
+  source = "files/scripts/send-email.sh"
+  
+  provider = aws.shared-infra
 }
 
 resource "aws_s3_object" "config_email" {
@@ -21,10 +45,22 @@ resource "aws_s3_object" "config_email" {
   provider = aws.shared-infra
 }
 
-resource "aws_s3_object" "termination_script" {
+resource "aws_s3_object" "countdown" {
   bucket = data.aws_s3_bucket.bucket.id
-  key    = "${local.config.region}/${local.config.email}/termination_script.sh"
-  source = "files/termination_script.sh"
+  key    = "${local.config.region}/${local.config.email}/countdown.sh"
+  source = "files/scripts/countdown.sh"
+  
+  provider = aws.shared-infra
+}
+
+
+# Following object is created for Terraform proper tracking purposes, taking
+# advantatge of the fact that Terraform is not able to track the content of the object
+
+resource "aws_s3_object" "wireguard_config" {
+  bucket = data.aws_s3_bucket.bucket.id
+  key    = "${local.config.region}/${local.config.email}/wireguard_config.zip"
+  source = "files/wireguard_config.zip"
   
   provider = aws.shared-infra
 }
