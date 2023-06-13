@@ -52,7 +52,7 @@ resource "aws_iam_policy" "termination_policy" {
       {
         Effect = "Allow"
         Action = [
-          "ec2:TerminateInstances",
+          "ec2:CancelSpotFleetRequests",
           "ec2:ReleaseAddress",
           "ses:SendEmail",
           "logs:CreateLogGroup",
