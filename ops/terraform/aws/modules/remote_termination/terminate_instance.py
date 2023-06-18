@@ -3,11 +3,11 @@ import os
 
 def lambda_handler(event, context):
 
-    # Terminate the instance
-    instance_id = os.environ.get('INSTANCE_ID')
+    # Terminate the spot ec2 fleet
+    fleet_id = event.get('FLEET_ID')
 
     ec2 = boto3.client('ec2')
-    ec2.terminate_instances(InstanceIds=[instance_id])
+    ec2.cancel_spot_fleet_requests(SpotFleetRequestIds=[fleet_id], TerminateInstances=True)
 
     # Release the elastic IP address
     eip_id = os.environ.get('EIP_ID')

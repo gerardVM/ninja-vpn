@@ -8,11 +8,6 @@ variable "function_name" {
     description = "The name of the lambda function."
 }
 
-variable "instance_id" {
-    type        = string
-    description = "The ID of the instance to terminate."
-}
-
 variable "eip_id" {
     type        = string
     description = "The ID of the EIP to release."

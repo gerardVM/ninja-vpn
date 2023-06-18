@@ -26,7 +26,6 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
 
   environment {
     variables = {
-      INSTANCE_ID    = var.instance_id
       EIP_ID         = var.eip_id
       SENDER_EMAIL   = var.sender_email
       SES_REGION     = var.ses_region
@@ -53,7 +52,7 @@ resource "aws_iam_policy" "termination_policy" {
       {
         Effect = "Allow"
         Action = [
-          "ec2:TerminateInstances",
+          "ec2:CancelSpotFleetRequests",
           "ec2:ReleaseAddress",
           "ses:SendEmail",
           "logs:CreateLogGroup",
