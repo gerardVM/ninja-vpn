@@ -35,7 +35,7 @@ export COUNTDOWN=${COUNTDOWN}
 
 # Spot Instance Interruption Handler
 
-/bin/bash /home/ec2-user/termination_handler.sh &
+/bin/bash /home/ec2-user/scripts/termination_handler.sh &
 
 
 # Install VPN
