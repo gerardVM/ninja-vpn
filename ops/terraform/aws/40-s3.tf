@@ -52,15 +52,3 @@ resource "aws_s3_object" "countdown" {
   
   provider = aws.shared-infra
 }
-
-
-# Following object is created for Terraform proper tracking purposes, taking
-# advantatge of the fact that Terraform is not able to track the content of the object
-
-resource "aws_s3_object" "wireguard_config" {
-  bucket = data.aws_s3_bucket.bucket.id
-  key    = "${local.config.region}/${local.config.email}/wireguard_config.zip"
-  source = "files/wireguard_config.zip"
-  
-  provider = aws.shared-infra
-}

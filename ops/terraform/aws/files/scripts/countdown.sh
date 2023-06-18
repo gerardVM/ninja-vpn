@@ -31,7 +31,7 @@ convert_to_seconds() (
 
 )
 
-sleep $(convert_to_seconds "${COUNTDOWN}") # This need to be adapted to the case of a instance termination
+sleep $(convert_to_seconds "${COUNTDOWN}")
 
 FLEET_ID=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[].Instances[].Tags[?Key==`aws:ec2spot:fleet-request-id`].Value' --output text)
 PAYLOAD=$(echo -n "{\"FLEET_ID\": \"$FLEET_ID\"}" | base64)

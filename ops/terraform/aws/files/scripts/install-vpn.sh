@@ -3,7 +3,7 @@
 
 # Install Docker
 
-yum install -y docker
+yum install -y docker zip
 systemctl start docker
 
 mkdir -p ${DOCKER_CONFIG}/cli-plugins
@@ -21,5 +21,13 @@ echo TZ=${TIMEZONE}        >> /home/ec2-user/.env
 # aws kms decrypt --ciphertext-blob fileb://<(base64 -d /home/ec2-user/$S3_WC_KEY) --output text --query Plaintext | base64 -d > /home/ec2-user/wireguard_config.zip
 # unzip /home/ec2-user/wireguard_config.zip -d /root/wireguard
 
-aws s3 cp s3://${S3_BUCKET}/${S3_DC_KEY} /home/ec2-user/docker-compose.yaml &&
+aws s3 cp s3://${S3_BUCKET}/${S3_DC_KEY} /home/ec2-user/docker-compose.yaml
+aws s3 sync s3://${S3_BUCKET}/${S3_WC_KEY} /root/wireguard/
+unzip /home/ec2-user/wireguard_config.zip -d /root/wireguard
 docker compose -f /home/ec2-user/docker-compose.yaml up -d
+aws s3 rm s3://${S3_BUCKET}/${S3_WC_KEY} --recursive
+
+### PENDING TASKS ####
+
+# MISSING MIGRATING THE WIREGUARD CONFIG FILES AND CHECKING
+# WHY LAMBDA STOPS IT INMEDIATELY IF IT'S NOT INVOKED

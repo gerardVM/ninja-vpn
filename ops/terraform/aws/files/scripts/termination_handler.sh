@@ -32,12 +32,11 @@ while true; do
   
     # Call the interruption handler function
     handle_interruption `curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id`
-  
-    # Add any additional cleanup or termination steps if needed
-    # For example, you might want to deregister from a load balancer
-  
-    # Terminate the instance
-    # aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" --region <your-region>
+
+    touch /home/ec2-user/spot-interruption.log
+
+    # Syncronize the files to S3
+    aws s3 sync /root/wireguard/ s3://${S3_BUCKET}/${S3_WC_KEY} --delete
     
     break
   else
