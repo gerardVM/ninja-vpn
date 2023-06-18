@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-# countdown
+# Countdown
 
 convert_to_seconds() (
 

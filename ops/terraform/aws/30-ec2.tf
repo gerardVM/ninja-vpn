@@ -69,18 +69,6 @@ resource "aws_launch_template" "launch_template" {
   }
 }
 
-# resource "aws_instance" "ec2_instance" {
-  
-#   launch_template {
-#     id              = aws_launch_template.launch_template.id
-#     version         = "$Latest"
-#   }
-  
-#   tags = {
-#     Name            = local.config.name
-#   }
-# }
-
 resource "aws_spot_fleet_request" "spot_fleet_request" {
   iam_fleet_role = aws_iam_role.fleet_role.arn
 
@@ -89,17 +77,6 @@ resource "aws_spot_fleet_request" "spot_fleet_request" {
       id      = aws_launch_template.launch_template.id
       version = aws_launch_template.launch_template.latest_version
     }
-    # overrides {
-    #   availability_zone = "*"
-    #   instance_requirements {
-    #     vcpu_count {
-    #       max = 2
-    #     }
-    #     memory_mib {
-    #       max = 4096
-    #     }
-    #   }
-    # }
   }
 
   spot_maintenance_strategies {
@@ -113,7 +90,6 @@ resource "aws_spot_fleet_request" "spot_fleet_request" {
   instance_interruption_behaviour = "terminate"
   terminate_instances_on_delete = true
   instance_pools_to_use_count = 1
-  # spot_price = "0.008"
 
 }
 
@@ -124,13 +100,6 @@ resource "aws_eip" "eip" {
 resource "aws_security_group" "security_group" {
   name_prefix = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-"
   description = "Allow VPN traffic"
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 
   ingress {
     from_port   = 51820

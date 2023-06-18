@@ -18,6 +18,7 @@ handle_interruption() {
   aws s3 sync /root/wireguard/ s3://${S3_BUCKET}/${S3_WC_KEY} --delete
 }
 
+
 # Main script
 
 while true; do
