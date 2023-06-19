@@ -61,6 +61,10 @@ Check [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/Schedule
 
 - Because of the multiuser implementation, some infrastructure like a bucket for resources, a bucket for the backend and a SES service for the sender email need to be set in advance. The configuration that defines those resources can be found in the common.yaml file.
 
+## Next Steps
+
+Sending credentials email just with the first spot instance: Credentials email is being sent after every spot instance interruption. This is not necessary since VPN configuration is passed through the instances of the fleet.
+
 ## Contributing
 
 Pull requests are welcome
