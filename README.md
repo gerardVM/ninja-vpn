@@ -61,8 +61,6 @@ Check [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/Schedule
 
 - Because of the multiuser implementation, some infrastructure like a bucket for resources, a bucket for the backend and a SES service for the sender email need to be set in advance. The configuration that defines those resources can be found in the common.yaml file.
 
-- Because AWS restrictions over sending emails, recipient emails will be automatically modified and will have the following format: `example+<aws-region>@example.com`. This implies that just email providers that support this feature will be able to receive the configuration emails.
-
 ## Contributing
 
 Pull requests are welcome

@@ -40,7 +40,7 @@ export COUNTDOWN="${COUNTDOWN}"
 
 # Execute countdown
 
-if [[ "${COUNTDOWN}" != "0" ]]; then /bin/bash /home/ec2-user/scripts/countdown.sh & ; fi 
+if [[ "${COUNTDOWN}" != "0" ]]; then /bin/bash /home/ec2-user/scripts/countdown.sh & fi
 
 
 # Install VPN
@@ -50,8 +50,9 @@ if [[ "${COUNTDOWN}" != "0" ]]; then /bin/bash /home/ec2-user/scripts/countdown.
 
 # Wait for all SES emails to be validated
 
-while [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ||
-      [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${RECEIVER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ; do
+while
+    # [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${RECEIVER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] || # Uncomment if your account is in the Amazon SES sandbox
+    [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ; do
     sleep 5
 done
 

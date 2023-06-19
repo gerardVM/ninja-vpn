@@ -7,7 +7,7 @@ module "remote_termination" {
   function_name  = local.config.name
   eip_id         = aws_eip.eip.id
   sender_email   = local.config.existing_data.ses_sender
-  receiver_email = aws_sesv2_email_identity.email_notifications.email_identity
+  receiver_email = local.config.email # aws_sesv2_email_identity.email_notifications.email_identity if your account is in the Amazon SES sandbox
   ses_region     = local.config.existing_data.region
   
   tags           = {
