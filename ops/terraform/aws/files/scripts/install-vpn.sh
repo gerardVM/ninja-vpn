@@ -19,6 +19,10 @@ echo TZ=${TIMEZONE}        >> /home/ec2-user/.env
 
 aws s3 cp s3://${S3_BUCKET}/${S3_DC_KEY} /home/ec2-user/docker-compose.yaml
 aws s3 sync s3://${S3_BUCKET}/${S3_WC_KEY} /root/wireguard/
+
+# Detect if this is the first run by checking if the directory is empty
+[ $(ls -1A /root/wireguard/ 2>/dev/null | wc -l) -eq 0 ] && touch /home/ec2-user/first_run.txt
+
 unzip /home/ec2-user/wireguard_config.zip -d /root/wireguard
 docker compose -f /home/ec2-user/docker-compose.yaml up -d
 aws s3 rm s3://${S3_BUCKET}/${S3_WC_KEY} --recursive
