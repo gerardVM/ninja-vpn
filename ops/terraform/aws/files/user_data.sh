@@ -48,15 +48,21 @@ if [[ "${COUNTDOWN}" != "0" ]]; then /bin/bash /home/ec2-user/scripts/countdown.
 /bin/bash /home/ec2-user/scripts/install-vpn.sh
 
 
-# Wait for all SES emails to be validated
+# Continue execution just if this is the first run
 
-while
-    # [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${RECEIVER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] || # Uncomment if your account is in the Amazon SES sandbox
-    [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ; do
-    sleep 5
-done
+if [ -f /home/ec2-user/first_run.txt ]; then
+
+    # Wait for all SES emails to be validated
+
+    while
+        # [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${RECEIVER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] || # Uncomment if your account is in the Amazon SES sandbox
+        [[ $(aws ses get-identity-verification-attributes --region ${SES_REGION} --identities ${SENDER_EMAIL} | grep VerificationStatus | awk '{print $2}' | tr -d '"') != "Success" ]] ; do
+        sleep 5
+    done
 
 
-# Send email
+    # Send email
 
-/bin/bash /home/ec2-user/scripts/send-email.sh
+    /bin/bash /home/ec2-user/scripts/send-email.sh
+
+fi
