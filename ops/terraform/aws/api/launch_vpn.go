@@ -17,10 +17,6 @@ import (
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
 
-// type MyEvent struct {
-// 	Name string `json:"name"`
-// }
-
 type VPNConfig struct {
 	Name          string 		 `yaml:"name"`
 	Image         string 		 `yaml:"image"`
@@ -151,12 +147,12 @@ func HandleRequest(ctx context.Context) error {
 	}
 
 	// to delete
-	content, err := ioutil.ReadFile(filepath.Join(tempDir, "ops/terraform/aws/00-resources.tf"))
-	if err != nil {
-		log.Fatalf("error reading file: %s", err)
-		return fmt.Errorf("failed to read 00-resources file: %v", err)
-	}
-	fmt.Println(string(content))
+	// content, err := ioutil.ReadFile(filepath.Join(tempDir, "ops/terraform/aws/00-resources.tf"))
+	// if err != nil {
+	// 	log.Fatalf("error reading file: %s", err)
+	// 	return fmt.Errorf("failed to read 00-resources file: %v", err)
+	// }
+	// fmt.Println(string(content))
 
 	// Set up Terraform	
 	installer := &releases.ExactVersion{
@@ -175,47 +171,24 @@ func HandleRequest(ctx context.Context) error {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
 
-	fmt.Println(tf)
-	fmt.Println(workingDir)
-
-	// readDir, err := tf.workingDir()
-
-	// fmt.Println(tf)
-	// fmt.Println(readDir)
-
-	// err = os.Chdir(tempDir)
-	// if err != nil {
-	// 	log.Fatalf("error running Chdir: %s", err)
-	// }
-
 	err = tf.Init(context.Background(), tfexec.Upgrade(true))
 	if err != nil {
 		log.Fatalf("error running Init: %s", err)
 	}
 
-	version, _, err := tf.Version(context.Background(), true)
+	state, err := tf.Show(context.Background())
 	if err != nil {
-		log.Fatalf("error running Version: %s", err)
+		log.Fatalf("error running Show: %s", err)
 	}
 
-	theDir := tf.WorkingDir()
-
-	fmt.Println(version)
-	fmt.Println(theDir)
-
-	// state, err := tf.Show(context.Background())
-	// if err != nil {
-	// 	log.Fatalf("error running Show: %s", err)
-	// }
-
-	plan, err := tf.Plan(context.Background(), tfexec.Out(workingDir))
+	plan, err := tf.Plan(context.Background(), tfexec.Out(filepath.Join(workingDir,"plan.out")))
 	if err != nil {
 		log.Fatalf("error running Plan: %s", err)
 	}
 
 	
-
-	// fmt.Println(state.FormatVersion)
+	fmt.Println(workingDir)
+	fmt.Println(state.FormatVersion)
 	fmt.Println(plan)
 	// fmt.Println(state.Modules[0].Resources["aws_instance.ninja-vpn"].Primary.Attributes["public_ip"])
 
