@@ -190,7 +190,23 @@ func HandleRequest(ctx context.Context) error {
 	fmt.Println(workingDir)
 	fmt.Println(state.FormatVersion)
 	fmt.Println(plan)
-	// fmt.Println(state.Modules[0].Resources["aws_instance.ninja-vpn"].Primary.Attributes["public_ip"])
+
+	// to delete
+	content, err := tf.ShowPlanFile(context.Background(), filepath.Join(workingDir,"plan.out"))
+	if err != nil {
+		log.Fatalf("error reading file: %s", err)
+		return fmt.Errorf("failed to read 00-resources file: %v", err)
+	}
+	for _, change := range content.ResourceChanges {
+		fmt.Println(change.Address)
+		fmt.Println(change.Type)
+		// Add more fields as needed
+	}
+	
+	err = tf.Apply(context.Background())
+	if err != nil {
+		log.Fatalf("error running Apply: %s", err)
+	}
 
 	return nil
 }
