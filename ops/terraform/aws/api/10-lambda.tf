@@ -21,15 +21,11 @@ resource "aws_lambda_function" "vpn_controller" {
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "launch_vpn"
   runtime          = "go1.x"
-  timeout          = 10
+  timeout          = 180
   memory_size      = 128
 
   environment {
     variables = {
-      # EIP_ID         = var.eip_id
-      # SENDER_EMAIL   = var.sender_email
-      # SES_REGION     = var.ses_region
-      # RECEIVER_EMAIL = var.receiver_email
       SENDER_EMAIL     ="valverdegerard+sender@gmail.com"
       EMAIL            ="valverdegerard@gmail.com"
       ACTION           ="deploy"
@@ -42,15 +38,9 @@ resource "aws_lambda_function" "vpn_controller" {
   tags = local.tags
 }
 
-# data "archive_file" "lambda_function" {
-#   type        = "zip"
-#   source_file = "${path.module}/launch_vpn"
-#   output_path = "${path.module}/launch_vpn.zip"
-# }
-
 resource "aws_iam_policy" "vpn_controller" {
   name        = "vpn-controller"
-  description = "Allows Lambda to delete a CloudWatch event rule and terminate an EC2 instance"
+  description = "Allows Lambda to depoy all necessary resources"
   
   policy = jsonencode({
     Version = "2012-10-17"
@@ -58,6 +48,11 @@ resource "aws_iam_policy" "vpn_controller" {
       {
         Effect = "Allow"
         Action = [
+          "ec2:*",
+          "s3:*",
+          "ses:*",
+          "lambda:*",
+          "iam:*",
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
