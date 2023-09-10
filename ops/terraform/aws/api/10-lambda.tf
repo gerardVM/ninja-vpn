@@ -21,8 +21,11 @@ resource "aws_lambda_function" "vpn_controller" {
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "launch_vpn"
   runtime          = "go1.x"
-  timeout          = 180
-  memory_size      = 128
+  timeout          = 600
+  memory_size      = 2560
+  ephemeral_storage {
+    size = 9216
+  }
 
   environment {
     variables = {
@@ -31,7 +34,7 @@ resource "aws_lambda_function" "vpn_controller" {
       ACTION           ="deploy"
       TIMEZONE         ="Europe/Madrid"
       COUNTDOWN        ="5 minutes"
-      REGION           ="eu-west-3" 
+      REGION           ="eu-west-3"
     }
   }
 

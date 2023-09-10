@@ -9,7 +9,7 @@ import (
 	"strings"
 	"path/filepath"
     "github.com/go-git/go-git/v5"
-	// "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-yaml/yaml"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hc-install/product"
@@ -192,24 +192,16 @@ func HandleRequest(ctx context.Context) error {
 		return fmt.Errorf("failed to launch Terraform: %v", err)
 	}
 
-	// to delete
-	// content, err := ioutil.ReadFile(filepath.Join(tempDir, "ops/terraform/aws/00-resources.tf"))
-	// if err != nil {
-	// 	log.Fatalf("error reading file: %s", err)
-	// 	return fmt.Errorf("failed to read 00-resources file: %v", err)
-	// }
-	// fmt.Println(string(content))
-
 	return nil
 }
 
 func main() {
-	// lambda.Start(HandleRequest)
-	os.Setenv("SENDER_EMAIL", "valverdegerard+sender@gmail.com")
-	os.Setenv("EMAIL", "valverdegerard@gmail.com")
-	os.Setenv("ACTION", "destroy")
-	os.Setenv("TIMEZONE", "Europe/Madrid")
-	os.Setenv("COUNTDOWN", "5 minutes")
-	os.Setenv("REGION", "eu-west-3" )
-	HandleRequest(context.Background())
+	lambda.Start(HandleRequest)
+	// os.Setenv("SENDER_EMAIL", "valverdegerard+sender@gmail.com")
+	// os.Setenv("EMAIL", "valverdegerard@gmail.com")
+	// os.Setenv("ACTION", "deploy")
+	// os.Setenv("TIMEZONE", "Europe/Madrid")
+	// os.Setenv("COUNTDOWN", "5 minutes")
+	// os.Setenv("REGION", "eu-west-3" )
+	// HandleRequest(context.Background())
 }
