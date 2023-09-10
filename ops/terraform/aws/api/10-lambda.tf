@@ -27,17 +27,6 @@ resource "aws_lambda_function" "vpn_controller" {
     size = 9216
   }
 
-  environment {
-    variables = {
-      SENDER_EMAIL     ="valverdegerard+sender@gmail.com"
-      EMAIL            ="valverdegerard@gmail.com"
-      ACTION           ="deploy"
-      TIMEZONE         ="Europe/Madrid"
-      COUNTDOWN        ="5 minutes"
-      REGION           ="eu-west-3"
-    }
-  }
-
   tags = local.tags
 }
 

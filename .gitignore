@@ -3,4 +3,4 @@ tfplan.out
 terraform.tfstate*
 .aws/
 terminate_instance.zip
-00-resources.tf
+ops/terraform/aws/vpn/00-resources.tf

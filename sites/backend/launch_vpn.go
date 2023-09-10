@@ -133,7 +133,7 @@ func launchTerraform(directory string) error {
 				log.Fatalf("error running Apply: %s", err)
 			}
 
-			fmt.Println("Apply completed")
+			fmt.Println("VPN deployed! You will receive an email with your VPN configuration after 2 minutes")
 
 		case "destroy":
 			err = tf.Destroy(context.Background())
@@ -197,11 +197,4 @@ func HandleRequest(ctx context.Context) error {
 
 func main() {
 	lambda.Start(HandleRequest)
-	// os.Setenv("SENDER_EMAIL", "valverdegerard+sender@gmail.com")
-	// os.Setenv("EMAIL", "valverdegerard@gmail.com")
-	// os.Setenv("ACTION", "deploy")
-	// os.Setenv("TIMEZONE", "Europe/Madrid")
-	// os.Setenv("COUNTDOWN", "5 minutes")
-	// os.Setenv("REGION", "eu-west-3" )
-	// HandleRequest(context.Background())
 }

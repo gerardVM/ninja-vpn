@@ -8,15 +8,19 @@ case $(cat ./users/${1}.yaml | yq -r .action) in
         make vpn-destroy USER=${1}
         ;;
     init)
-        make tf-init USER=${1}
+        make set_user USER=${1}
+        make tf-init
         ;;
     validate)
-        make tf-validate USER=${1}
+        make set_user USER=${1}
+        make tf-validate
         ;;
     plan)
-        make tf-plan USER=${1}
+        make set_user USER=${1}
+        make tf-init
+        make tf-plan
         ;;
     *)
-        echo "Usage: $0 {deploy|destroy}"
+        echo "Usage: $0 {deploy|destroy|init|validate|plan}"
         exit 1
 esac
