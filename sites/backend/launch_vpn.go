@@ -10,6 +10,7 @@ import (
 	"path/filepath"
     "github.com/go-git/go-git/v5"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/go-yaml/yaml"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hc-install/product"
@@ -96,7 +97,7 @@ func editResourcesFile(template string, destination string, region string, user 
 	return nil
 }
 
-func launchTerraform(directory string) error {
+func launchTerraform(directory string, action string) error {
 	installer := &releases.ExactVersion{
 		Product: product.Terraform,
 		Version: version.Must(version.NewVersion("1.4.4")),
@@ -120,7 +121,7 @@ func launchTerraform(directory string) error {
 
 	// Apply or Destroy
 
-	switch os.Getenv("ACTION") {
+	switch action {
 
 		case "deploy":
 			_, err = tf.Plan(context.Background(), tfexec.Out(filepath.Join(workingDir,"plan.out")))
@@ -151,7 +152,14 @@ func launchTerraform(directory string) error {
 }
 
 
-func HandleRequest(ctx context.Context) error {
+func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) error {
+	sender_email := request.QueryStringParameters["sender_email"]
+	action := request.QueryStringParameters["action"]
+	email := request.QueryStringParameters["email"]
+	timezone := request.QueryStringParameters["timezone"]
+	countdown := request.QueryStringParameters["countdown"]
+	region := request.QueryStringParameters["region"]
+
 	// Replace `repoURL` with the actual repository URL
 	repoURL := "https://github.com/gerardVM/ninja-vpn"
 
@@ -170,13 +178,13 @@ func HandleRequest(ctx context.Context) error {
 	}
 
 	// Create the file config.yaml from $SENDER_EMAIL enrivonment vraiable
-	err = createConfigFile(tempDir, os.Getenv("SENDER_EMAIL"), os.Getenv("ACTION"), os.Getenv("EMAIL"), os.Getenv("TIMEZONE"), os.Getenv("COUNTDOWN"), os.Getenv("REGION")) 
+	err = createConfigFile(tempDir, sender_email, action, email, timezone, countdown, region)
 	if err != nil {
 		return fmt.Errorf("failed to create config.yaml file: %v", err)
 	}
 
 	// Edit the file resources.tf
-	err = editResourcesFile(filepath.Join(tempDir, "ops/terraform/aws/templates/00-resources.tpl"), filepath.Join(tempDir, "ops/terraform/aws/00-resources.tf"), os.Getenv("REGION"), strings.Split(os.Getenv("EMAIL"),"@")[0]) // Remember to update the path
+	err = editResourcesFile(filepath.Join(tempDir, "ops/terraform/aws/templates/00-resources.tpl"), filepath.Join(tempDir, "ops/terraform/aws/00-resources.tf"), region, strings.Split(email,"@")[0]) // Remember to update the path
 	if err != nil {
 		return fmt.Errorf("failed to edit resources.tf file: %v", err)
 	}
@@ -187,7 +195,7 @@ func HandleRequest(ctx context.Context) error {
 	}
 
 	// Launch Terraform
-	err = launchTerraform(tempDir)
+	err = launchTerraform(tempDir, action)
 	if err != nil {
 		return fmt.Errorf("failed to launch Terraform: %v", err)
 	}
