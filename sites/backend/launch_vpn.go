@@ -154,11 +154,11 @@ func launchTerraform(directory string, action string) error {
 
 func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) error {
 	sender_email := request.QueryStringParameters["sender_email"]
-	action := request.QueryStringParameters["action"]
-	email := request.QueryStringParameters["email"]
-	timezone := request.QueryStringParameters["timezone"]
-	countdown := request.QueryStringParameters["countdown"]
-	region := request.QueryStringParameters["region"]
+	action 		 := request.QueryStringParameters["action"]
+	email 		 := request.QueryStringParameters["email"]
+	timezone 	 := request.QueryStringParameters["timezone"]
+	countdown 	 := request.QueryStringParameters["countdown"]
+	region 		 := request.QueryStringParameters["region"]
 
 	// Replace `repoURL` with the actual repository URL
 	repoURL := "https://github.com/gerardVM/ninja-vpn"
