@@ -1,18 +1,19 @@
 package main
 
 import (
-	"context"
+	"os"
 	"fmt"
 	"log"
-	"io/ioutil"
-	"os"
+	"context"
 	"strings"
+	"io/ioutil"
+	"encoding/json"
 	"path/filepath"
-    "github.com/go-git/go-git/v5"
-	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/go-yaml/yaml"
+	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/go-version"
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/terraform-exec/tfexec"
@@ -151,14 +152,22 @@ func launchTerraform(directory string, action string) error {
 	return nil
 }
 
+func HandleRequest(request events.APIGatewayProxyRequest) error {
 
-func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) error {
-	sender_email := request.QueryStringParameters["sender_email"]
-	action 		 := request.QueryStringParameters["action"]
-	email 		 := request.QueryStringParameters["email"]
-	timezone 	 := request.QueryStringParameters["timezone"]
-	countdown 	 := request.QueryStringParameters["countdown"]
-	region 		 := request.QueryStringParameters["region"]
+	// Assuming the request body contains JSON data
+    var requestBody map[string]string
+    err := json.Unmarshal([]byte(request.Body), &requestBody)
+    if err != nil {
+        return fmt.Errorf("failed to unmarshal request body: %v", err)
+    }
+
+    // Extract parameters
+	sender_email := os.Getenv("SENDER_EMAIL")
+    action 		 := requestBody["action"]
+    email 		 := requestBody["email"]
+    timezone 	 := requestBody["timezone"]
+    countdown 	 := requestBody["countdown"]
+    region 		 := requestBody["region"]
 
 	// Replace `repoURL` with the actual repository URL
 	repoURL := "https://github.com/gerardVM/ninja-vpn"
@@ -169,7 +178,6 @@ func HandleRequest(ctx context.Context, request events.APIGatewayProxyRequest) e
 		return fmt.Errorf("failed to create temp directory: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
-	// fmt.Println("tempDir: ", tempDir)
 
 	// Clone the repository
 	err = cloneRepository(repoURL, tempDir)

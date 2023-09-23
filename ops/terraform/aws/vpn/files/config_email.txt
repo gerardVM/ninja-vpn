@@ -16,6 +16,7 @@ Content-Transfer-Encoding: 7bit
 <body>
   <h2>WireGuard VPN ($AWS_REGION)</h2>
   <p>Here are your credentials. You can either scan the QR code if you are on your phone or download the attached config file if you are using a desktop machine.</p>
+  <p>This VPN server will be available for $duration.</p>
   <img src="cid:user-qr.png" alt="QR code for your VPN" />
 </body>
 </html>

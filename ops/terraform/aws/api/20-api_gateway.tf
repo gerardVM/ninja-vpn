@@ -3,7 +3,7 @@ resource "aws_api_gateway_rest_api" "api" {
 }
 
 resource "aws_api_gateway_resource" "resource" {
-  path_part   = "launch"
+  path_part   = "lambda"
   parent_id   = aws_api_gateway_rest_api.api.root_resource_id
   rest_api_id = aws_api_gateway_rest_api.api.id
 }
@@ -22,6 +22,14 @@ resource "aws_api_gateway_integration" "integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.vpn_controller.invoke_arn
+  request_parameters = {
+    "integration.request.header.X-Amz-Invocation-Type" = "'Event'" # async -> 502 Bad Gateway but still works
+  }
+  request_templates = {
+    "application/json" = jsonencode({  # Assuming the Lambda expects JSON data
+      "body" = "$input.body"          # Pass the entire request body to the Lambda
+    })
+  }
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
