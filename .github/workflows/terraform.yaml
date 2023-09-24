@@ -1,0 +1,74 @@
+name: terraform
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+
+  test-infra:
+    name: Test infra update
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ vars.ROLE_TO_ASSUME }}
+          role-session-name: ninja-vpn
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.4.4
+      - name: Install sops
+        run: |
+          SOPS_VERSION=$(curl -sL https://api.github.com/repos/mozilla/sops/releases/latest | jq -r '.tag_name')
+          wget -O /tmp/sops https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.amd64
+          chmod +x /tmp/sops
+          sudo cp /tmp/sops /usr/local/bin/sops
+      - name: Terraform Plan
+        run: |
+          make decrypt-config
+          make tf-test
+      - name: Persist Terraform Plan
+        uses: actions/upload-artifact@v2
+        with:
+          name: terraform-plan TF_TARGET=api
+          path: ./ops/terraform/aws/api/tfplan.out
+
+  deploy-infra:
+    name: Update infra
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    depends-on: test-infra
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ vars.ROLE_TO_ASSUME }}
+          role-session-name: shared-infra
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.4.4
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v2
+        with:
+          name: terraform-plan
+          path: ./ops/terraform/aws/api/tfplan.out
+      - name: Terraform Apply
+        run: |
+          make tf-plan TF_TARGET=api
