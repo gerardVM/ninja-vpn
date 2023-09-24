@@ -1,6 +1,5 @@
 tfplan.out
 .terraform/
 terraform.tfstate*
-.aws/
-terminate_instance.zip
-00-resources.tf
+*.zip
+ops/terraform/aws/vpn/00-preferences.tf

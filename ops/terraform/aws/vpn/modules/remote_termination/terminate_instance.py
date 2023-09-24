@@ -24,7 +24,7 @@ def lambda_handler(event, context):
     source = sender_email
     message = {
         'Subject': {'Data': 'VPN server terminated'},
-        'Body': {'Text': {'Data': 'The VPN server has been terminated'}}
+        'Body': {'Text': {'Data': f'The VPN server in region {region} has been terminated for {receiver_email}.'}}
     }
     
     ses = boto3.client('ses', region_name=region)

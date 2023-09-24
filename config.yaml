@@ -1,0 +1,17 @@
+# API configuration
+api_region: "eu-west-1"                             # Region where your API resources will be created
+account: "1234567890123"                            # Your AWS account ID
+bucket_name: "ninja-vpn-resources-bucket"           # Bucket name for the VPN users necessary files
+ses_sender_email: "the-emails-sender@example.com"   # Email address used to send the VPN users configuration
+
+# VPN static configuration
+name: "ninja-vpn"                                   # Name for your resources
+image: "al2023-ami-2023"                            # Amazon Linux 2023 (Default x86_64)
+instance_type: "t2.micro"                           # Around $0,13 per 24h
+
+# VPN dynamic configuration (Do not uncomment. This will be added at runtime)
+# action: "deploy"
+# email: "user_email@your_domain.com"
+# timezone: "Europe/Madrid"                         # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+# countdown: "30 minutes"                           # https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rate-expressions.html
+# region: "eu-west-1"

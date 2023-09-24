@@ -1,34 +1,38 @@
 TF_COMPONENT    ?= aws
-TF_DIR          := ${PWD}/ops/terraform/${TF_COMPONENT}
-USER            ?= username
-REGION           = $(shell yq -r '.region' ./users/${USER}.yaml)
+TF_TARGET       ?= vpn
+TF_DIR          := ${PWD}/ops/terraform/${TF_COMPONENT}/${TF_TARGET}
 
-set_user:
-	@cat ./common.yaml > ./config.yaml && cat ./users/${USER}.yaml >> ./config.yaml
-	@cd ${TF_DIR} && sed 's|<USER>/<REGION>|${USER}/${REGION}|g' ./templates/00-resources.tpl > ./00-resources.tf
+VPN_REGION      := $(shell yq -r '.region' config.yaml)
+VPN_USER        := $(shell echo $(shell yq -r '.email' config.yaml) | cut -d'@' -f1)
 
-tf-init: set_user
+KMS_KEY         ?= arn:aws:kms:eu-west-3:877759700856:key/b3ac1035-b1f6-424a-bfe9-a6ec592e7487
+
+
+set-vpn-preferences-file:
+	@cd ${TF_DIR} && sed 's|<USER>/<REGION>|${VPN_USER}/${VPN_REGION}|g' ./templates/00-preferences.tpl > ./00-preferences.tf
+
+decrypt-config:
+	@sops -d config.enc.yaml > config.yaml
+
+encrypt-config:
+	@sops -e --kms ${KMS_KEY} --input-type yaml config.yaml > config.enc.yaml
+
+tf-init:
 	@cd ${TF_DIR} && terraform init -reconfigure
 
 tf-validate: tf-init
 	@cd ${TF_DIR} && terraform validate
 
-tf-plan: set_user
-	@cd ${TF_DIR} && terraform init -reconfigure
+tf-plan:
 	@cd ${TF_DIR} && terraform plan -out=tfplan.out
 
 tf-apply:
 	@cd ${TF_DIR} && terraform apply tfplan.out
 
-tf-output: set_user
+tf-output:
 	@cd ${TF_DIR} && terraform output -json
 
-vpn-destroy: set_user tf-init
+tf-deploy: tf-init tf-plan tf-apply
+
+tf-destroy: tf-init
 	@cd ${TF_DIR} && terraform destroy -auto-approve
-
-vpn-deploy: tf-validate tf-plan tf-apply
-	@echo "Please, check your email for AWS SES subscription confirmation"
-	@echo "Once confirmed, you will receive an email with your VPN configuration after 2 minutes"
-
-vpn:
-	./ops/scripts/action.sh ${USER}

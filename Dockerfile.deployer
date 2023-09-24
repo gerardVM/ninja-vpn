@@ -1,6 +1,0 @@
-FROM hashicorp/terraform:1.4.4
-
-RUN apk add make gettext
-ADD ./ops/.aws /root/.aws
-
-ENTRYPOINT ["/bin/sh", "-c"]

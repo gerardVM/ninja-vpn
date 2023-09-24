@@ -4,62 +4,37 @@ Ninja VPN is a really simple volatile VPN server that uses Wireguard in an AWS e
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/gerardVM/ninja-vpn)
 
-## Installation
+## The fancy expected result
 
-If you are used to Terraform and AWS, you can use the Makefile to build and destroy the VPN server. Edit the `users/<username>.yaml` file with user's desired configuration and run:
-
-```bash
-make vpn USER=<username>
-```
-
-In case you don't have Terraform installed, you can use Docker to build and destroy the VPN server as follows:
-
-You need:
-- An AWS account and user credentials with permissions to create AWS resources.
-- Docker installed
-
-Steps:
-
-1. Clone this repo and cd into it.
-```bash
-docker run -it --rm -v $(pwd):/git alpine/git clone https://github.com/gerardVM/ninja-vpn.git
-cd ninja-vpn
-```
-
-2. Fill up the `ops/.aws/credentials` file with your AWS credentials and create a Docker container with all necessary tools and permissions:
-```bash
-docker build -t ninja-vpn-deployer -f Dockerfile.deployer .
-```
-
-3. Fill up the `users/<username>.yaml` file with your user's desired configuration. You can decide there if you want to deploy or destroy the VPN server.
-
-4. Build/Destroy the VPN server by using the Docker container
-```bash
-docker run -it --rm -v $(pwd):/ninja-vpn -w /ninja-vpn ninja-vpn-deployer "make vpn USER=<username>"
-```
-
-## Usage
-
-Edit `users/<username>.yaml` file and run following command to deploy/destroy your VPN server:
+You just need to run something in the lines of this:
 
 ```bash
-make vpn USER=<username>    # Deploy/Destroy user's desired configuration for the VPN server
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "deploy",
+    "email": "your_email@example.com",
+    "timezone": "Europe/Madrid",
+    "countdown": "50 minutes",
+    "region": "eu-west-1"
+  }' <your-api-gateway-endpoint>
 ```
 
-Users can now configure their Wireguard client with the info sent into their email:
+And you will receive an email in few minutes with the VPN configuration and a QR code to scan with your Wireguard app.
 
-- For Android: Scan the QR code with the Wireguard app.
-- For Desktop: Import the attached config file into the Wireguard app.
+## How to use this repository
 
-## Countdown feature (optional)
+### Deploy the API
 
-The VPN server will be automatically destroyed after a certain amount of time. You can configure this time in the `users/<username>.yaml` file.
+```bash
+make tf-deploy TF_TARGET=api
+```
 
-Check [here](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#RateExpressions) for more info about the rate expression syntax.
-
-## Caveats
-
-- Because of the multiuser implementation, some infrastructure like a bucket for resources, a bucket for the backend and a SES service for the sender email need to be set in advance. The configuration that defines those resources can be found in the common.yaml file.
+### Deploy the VPN manually
+  
+```bash
+make tf-deploy TF_TARGET=vpn
+```
 
 ## Contributing
 
