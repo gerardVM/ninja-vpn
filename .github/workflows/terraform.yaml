@@ -14,7 +14,7 @@ permissions:
 
 jobs:
 
-  test-infra:
+  infra:
     name: Test infra update
     runs-on: ubuntu-latest
     steps:
@@ -40,35 +40,7 @@ jobs:
         run: |
           make decrypt-config
           make tf-test TF_TARGET=api
-      - name: Persist Terraform Plan
-        uses: actions/upload-artifact@v2
-        with:
-          name: terraform-plan
-          path: ./ops/terraform/aws/api/tfplan.out
-
-  deploy-infra:
-    name: Update infra
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    depends-on: test-infra
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ vars.ROLE_TO_ASSUME }}
-          role-session-name: shared-infra
-          aws-region: ${{ vars.AWS_REGION }}
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.4.4
-      - name: Download Terraform Plan
-        uses: actions/download-artifact@v2
-        with:
-          name: terraform-plan
-          path: ./ops/terraform/aws/api/tfplan.out
       - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
         run: |
-          make tf-plan TF_TARGET=api
+          make tf-apply TF_TARGET=api
