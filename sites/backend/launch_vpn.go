@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"path/filepath"
+	"go.mozilla.org/sops/decrypt"
 	"github.com/go-yaml/yaml"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/go-version"
@@ -20,10 +21,6 @@ import (
 )
 
 type VPNConfig struct {
-	Name          string 		 `yaml:"name"`
-	Image         string 		 `yaml:"image"`
-	InstanceType  string 		 `yaml:"instance_type"`
-	ExistingData  ExistingData   `yaml:"existing_data"`
 	Action    	  string 		 `yaml:"action"`
 	Email     	  string 		 `yaml:"email"`
 	Timezone  	  string 		 `yaml:"timezone"`
@@ -31,22 +28,28 @@ type VPNConfig struct {
 	Region    	  string 		 `yaml:"region"`
 }
 
-type ExistingData struct {
-	Region    	  string 		 `yaml:"region"`
-	Bucket    	  string 		 `yaml:"bucket"`
-	SESSender 	  string 		 `yaml:"ses_sender"`
+func decryptConfigFile(inputFilePath string, outputFilePath string) error {
+    // Use the decrypt package to decrypt the file. The first argument is a byte array
+    cleartext, err := decrypt.File(inputFilePath, "yaml")
+    if err != nil {
+        return err
+    }
+
+    fmt.Println("File decrypted successfully.")
+
+	// Write the cleartext to a file
+	err = ioutil.WriteFile(outputFilePath, cleartext, 0644)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("File written successfully.")
+
+	return nil
 }
 
-func createConfigFile(destination string, sender_email string, action string, email string, timezone string, countdown string, region string) error {
-	config := VPNConfig{
-		Name:         "ninja-vpn",
-		Image:        "al2023-ami-2023",
-		InstanceType: "t2.micro",
-		ExistingData: ExistingData{
-			Region:    "eu-west-3",
-			Bucket:    "ninja-vpn-resources",
-			SESSender: sender_email,
-		},
+func updateConfigFile(destination string, action string, email string, timezone string, countdown string, region string) error {
+	config_append := VPNConfig{
 		Action:    action,
 		Email:     email,
 		Timezone:  timezone,
@@ -54,13 +57,22 @@ func createConfigFile(destination string, sender_email string, action string, em
 		Region:    region,
 	}
 
-	yamlData, err := yaml.Marshal(config)
+	yamlData, err := yaml.Marshal(config_append)
 	if err != nil {
 		return err
 	}
 
 	filename := filepath.Join(destination, "config.yaml")
-	err = ioutil.WriteFile(filename, yamlData, 0644)
+
+	// Open the file in append mode
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// Append yamlData to the file
+	_, err = file.Write(yamlData)
 	if err != nil {
 		return err
 	}
@@ -76,7 +88,7 @@ func cloneRepository(repoURL, destination string) error {
 	return err
 }
 
-func editResourcesFile(template string, destination string, region string, user string) error {
+func editPreferencesFile(template string, destination string, region string, user string) error {
 	// Read the file
 	data, err := ioutil.ReadFile(template)
 	if err != nil {
@@ -109,8 +121,7 @@ func launchTerraform(directory string, action string) error {
 		log.Fatalf("error installing Terraform: %s", err)
 	}	
 
-	workingDir := filepath.Join(directory, "ops/terraform/aws/")
-	tf, err := tfexec.NewTerraform(workingDir, execPath)
+	tf, err := tfexec.NewTerraform(directory, execPath)
 	if err != nil {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
@@ -162,7 +173,6 @@ func HandleRequest(request events.APIGatewayProxyRequest) error {
     }
 
     // Extract parameters
-	sender_email := os.Getenv("SENDER_EMAIL")
     action 		 := requestBody["action"]
     email 		 := requestBody["email"]
     timezone 	 := requestBody["timezone"]
@@ -185,25 +195,33 @@ func HandleRequest(request events.APIGatewayProxyRequest) error {
 		return fmt.Errorf("failed to clone repository: %v", err)
 	}
 
-	// Create the file config.yaml from $SENDER_EMAIL enrivonment vraiable
-	err = createConfigFile(tempDir, sender_email, action, email, timezone, countdown, region)
+	// Unencrypt the config.enc.yaml file
+	err = decryptConfigFile("config.enc.yaml", "config.yaml")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Update the file config.yaml file
+	err = updateConfigFile(tempDir, action, email, timezone, countdown, region)
 	if err != nil {
 		return fmt.Errorf("failed to create config.yaml file: %v", err)
 	}
 
-	// Edit the file resources.tf
-	err = editResourcesFile(filepath.Join(tempDir, "ops/terraform/aws/templates/00-resources.tpl"), filepath.Join(tempDir, "ops/terraform/aws/00-resources.tf"), region, strings.Split(email,"@")[0]) // Remember to update the path
+	terraformDir := filepath.Join(tempDir, "ops/terraform/aws/vpn")
+
+	// Edit the file preferences.tf
+	err = editPreferencesFile(filepath.Join(terraformDir, "templates/00-preferences.tpl"), filepath.Join(terraformDir, "00-preferences.tf"), region, strings.Split(email,"@")[0]) // Remember to update the path
 	if err != nil {
-		return fmt.Errorf("failed to edit resources.tf file: %v", err)
+		return fmt.Errorf("failed to edit preferences.tf file: %v", err)
 	}
 
-	err = os.Chmod(filepath.Join(tempDir, "ops/terraform/aws/00-resources.tf"), 0644)
+	err = os.Chmod(filepath.Join(terraformDir, "00-preferences.tf"), 0644)
 	if err != nil {
-		return fmt.Errorf("failed to change permissions of resources.tf file: %v", err)
+		return fmt.Errorf("failed to change permissions of preferences.tf file: %v", err)
 	}
 
 	// Launch Terraform
-	err = launchTerraform(tempDir, action)
+	err = launchTerraform(terraformDir, action)
 	if err != nil {
 		return fmt.Errorf("failed to launch Terraform: %v", err)
 	}

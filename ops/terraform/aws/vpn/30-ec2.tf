@@ -16,9 +16,9 @@ data "template_file" "user_data" {
     S3_SE_KEY           = aws_s3_object.send_email.key
     S3_CD_KEY           = aws_s3_object.countdown.key
     S3_WC_KEY           = "${local.config.region}/${local.config.email}/wireguard_config"
-    SENDER_EMAIL        = local.config.existing_data.ses_sender
+    SENDER_EMAIL        = local.config.ses_sender_email
     RECEIVER_EMAIL      = local.config.email # aws_sesv2_email_identity.email_notifications.email_identity if your account is in the Amazon SES sandbox
-    SES_REGION          = local.config.existing_data.region
+    SES_REGION          = local.config.region
     COUNTDOWN           = try(local.config.countdown, "0")
   }
 }

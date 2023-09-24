@@ -1,12 +1,13 @@
 TF_COMPONENT    ?= aws
-TF_TARGET	    ?= vpn
+TF_TARGET       ?= vpn
 TF_DIR          := ${PWD}/ops/terraform/${TF_COMPONENT}/${TF_TARGET}
-USER            ?= username
-REGION           = $(shell yq -r '.region' ./users/${USER}.yaml)
+KMS_KEY         ?= arn:aws:kms:eu-west-3:877759700856:key/b3ac1035-b1f6-424a-bfe9-a6ec592e7487
 
-set_user:
-	@cat ./common.yaml > ./config.yaml && cat ./users/${USER}.yaml >> ./config.yaml
-	@cd ${TF_DIR} && sed 's|<USER>/<REGION>|${USER}/${REGION}|g' ./templates/00-resources.tpl > ./00-resources.tf
+decrypt-config:
+	@sops -d config.enc.yaml > config.yaml; fi
+
+encrypt-config:
+	@sops -e --kms ${KMS_KEY} --input-type yaml config.yaml > config.enc.yaml
 
 tf-init:
 	@cd ${TF_DIR} && terraform init -reconfigure
@@ -20,17 +21,10 @@ tf-plan:
 tf-apply:
 	@cd ${TF_DIR} && terraform apply tfplan.out
 
-tf-destroy:
-	@cd ${TF_DIR} && terraform destroy
-
 tf-output:
 	@cd ${TF_DIR} && terraform output -json
 
-vpn-destroy: set_user tf-init
+tf-deploy: tf-init tf-plan tf-apply
+
+tf-destroy: tf-init
 	@cd ${TF_DIR} && terraform destroy -auto-approve
-
-vpn-deploy: set_user tf-plan tf-apply
-	@echo "Deployed! You will receive an email with your VPN configuration after 2 minutes"
-
-vpn:
-	./ops/scripts/action.sh ${USER}

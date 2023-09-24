@@ -29,7 +29,7 @@ resource "aws_lambda_function" "vpn_controller" {
 
   environment {
     variables = {
-      SENDER_EMAIL   = "valverdegerard+sender@gmail.com"
+      SENDER_EMAIL   = local.config.ses_sender_email
     }
   }
 
