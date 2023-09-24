@@ -35,4 +35,4 @@ tf-output:
 tf-deploy: tf-init tf-plan tf-apply
 
 tf-destroy: tf-init
-	@cd ${TF_DIR} && terraform destroy -auto-approve
+	@cd ${TF_DIR} && terraform destroy
