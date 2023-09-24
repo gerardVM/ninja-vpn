@@ -23,5 +23,5 @@ provider "aws" {
 provider "aws" {
   region = local.config.region
   
-  alias  = "shared-infra"
+  alias  = "api_infra"
 }
