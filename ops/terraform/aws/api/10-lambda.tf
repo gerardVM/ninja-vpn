@@ -51,6 +51,7 @@ resource "aws_iam_policy" "vpn_controller" {
           "ses:*",
           "lambda:*",
           "iam:*",
+          "kms:*",
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"

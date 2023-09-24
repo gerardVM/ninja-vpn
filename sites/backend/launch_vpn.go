@@ -136,7 +136,7 @@ func launchTerraform(directory string, action string) error {
 	switch action {
 
 		case "deploy":
-			_, err = tf.Plan(context.Background(), tfexec.Out(filepath.Join(workingDir,"plan.out")))
+			_, err = tf.Plan(context.Background(), tfexec.Out(filepath.Join(directory,"plan.out")))
 			if err != nil {
 				log.Fatalf("error running Plan: %s", err)
 			}
@@ -196,7 +196,7 @@ func HandleRequest(request events.APIGatewayProxyRequest) error {
 	}
 
 	// Unencrypt the config.enc.yaml file
-	err = decryptConfigFile("config.enc.yaml", "config.yaml")
+	err = decryptConfigFile(filepath.Join(tempDir,"config.enc.yaml"), filepath.Join(tempDir, "config.yaml"))
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -225,6 +225,8 @@ func HandleRequest(request events.APIGatewayProxyRequest) error {
 	if err != nil {
 		return fmt.Errorf("failed to launch Terraform: %v", err)
 	}
+
+	fmt.Println("Done! Parameters: ", action, email, timezone, countdown, region)
 
 	return nil
 }
