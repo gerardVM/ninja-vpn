@@ -39,11 +39,11 @@ jobs:
       - name: Terraform Plan
         run: |
           make decrypt-config
-          make tf-test
+          make tf-test TF_TARGET=api
       - name: Persist Terraform Plan
         uses: actions/upload-artifact@v2
         with:
-          name: terraform-plan TF_TARGET=api
+          name: terraform-plan
           path: ./ops/terraform/aws/api/tfplan.out
 
   deploy-infra:

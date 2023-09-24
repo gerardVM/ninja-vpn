@@ -26,6 +26,8 @@ tf-validate: tf-init
 tf-plan:
 	@cd ${TF_DIR} && terraform plan -out=tfplan.out
 
+tf-test: tf-validate tf-plan
+
 tf-apply:
 	@cd ${TF_DIR} && terraform apply tfplan.out
 
