@@ -3,15 +3,21 @@ resource "aws_api_gateway_rest_api" "api" {
   description = "Ninja VPN API"
 }
 
-resource "aws_api_gateway_resource" "resource" {
+resource "aws_api_gateway_resource" "cors" {
   path_part   = "{cors+}"
+  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  rest_api_id = aws_api_gateway_rest_api.api.id
+}
+
+resource "aws_api_gateway_resource" "lambda" {
+  path_part   = "lambda"
   parent_id   = aws_api_gateway_rest_api.api.root_resource_id
   rest_api_id = aws_api_gateway_rest_api.api.id
 }
 
 resource "aws_api_gateway_method" "cors" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.resource.id
+  resource_id   = aws_api_gateway_resource.cors.id
   # http_method   = "POST"
   http_method   = "OPTIONS"
   authorization = "NONE"
@@ -19,14 +25,14 @@ resource "aws_api_gateway_method" "cors" {
 
 resource "aws_api_gateway_method" "post_method" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.resource.id
+  resource_id   = aws_api_gateway_resource.lambda.id
   http_method   = "POST"
   authorization = "NONE"
 }
 
 resource "aws_api_gateway_method_response" "cors" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.resource.id
+  resource_id = aws_api_gateway_resource.cors.id
   http_method = aws_api_gateway_method.cors.http_method
   status_code = "200"
 
@@ -35,13 +41,16 @@ resource "aws_api_gateway_method_response" "cors" {
     "method.response.header.Access-Control-Allow-Methods" = true,
     "method.response.header.Access-Control-Allow-Origin"  = true,
   }
+  response_models = {
+    "application/json" = "Empty"
+  }
   
   depends_on = [aws_api_gateway_method.cors]
 }
 
 resource "aws_api_gateway_integration" "integration" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.resource.id
+  resource_id             = aws_api_gateway_resource.lambda.id
   http_method             = aws_api_gateway_method.post_method.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
@@ -58,7 +67,7 @@ resource "aws_api_gateway_integration" "integration" {
 
 resource "aws_api_gateway_integration" "cors" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.resource.id
+  resource_id             = aws_api_gateway_resource.cors.id
   http_method             = aws_api_gateway_method.cors.http_method
   # integration_http_method = "OPTIONS"
   type                    = "MOCK"
@@ -71,15 +80,17 @@ resource "aws_api_gateway_integration" "cors" {
 
 resource "aws_api_gateway_integration_response" "cors" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.resource.id
+  resource_id = aws_api_gateway_resource.cors.id
   http_method = aws_api_gateway_method.cors.http_method
   status_code = aws_api_gateway_method_response.cors.status_code
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST'",
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS,POST'",
     "method.response.header.Access-Control-Allow-Origin"  = "'*'", # Change
   }
+
+  depends_on = [aws_api_gateway_integration.cors, aws_api_gateway_method_response.cors]
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
@@ -101,25 +112,6 @@ resource "aws_api_gateway_method_settings" "all" {
     cache_ttl_in_seconds = 300
   }
 }
-
-# resource "aws_api_gateway_usage_plan" "deployment" {
-#   name = "ninja-vpn-api-usage-plan"
-#   description = "Ninja VPN API Usage Plan"
-#   api_stages {
-#     api_id = aws_api_gateway_rest_api.api.id
-#     stage = aws_api_gateway_deployment.deployment.stage_name
-#   }
-#   # product_code = "ninja-vpn-api"
-#   # quota_settings {
-#   #   limit = 1000
-#   #   offset = 0
-#   #   period = "MONTH"
-#   # }
-#   throttle_settings {
-#     burst_limit = 1
-#     rate_limit = 1
-#   }
-# }
 
 resource "aws_api_gateway_gateway_response" "response_4xx" {
   rest_api_id = aws_api_gateway_rest_api.api.id
