@@ -163,13 +163,13 @@ func launchTerraform(directory string, action string) error {
 	return nil
 }
 
-func HandleRequest(request events.APIGatewayProxyRequest) (response events.APIGatewayProxyResponse, err error) {
+func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// Assuming the request body contains JSON data
     var requestBody map[string]string
     err := json.Unmarshal([]byte(request.Body), &requestBody)
     if err != nil {
-        return fmt.Errorf("failed to unmarshal request body: %v", err)
+        return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to unmarshal request body: %v", err)
     }
 
 	// Prepare your response
@@ -180,13 +180,12 @@ func HandleRequest(request events.APIGatewayProxyRequest) (response events.APIGa
 
 	body := map[string]interface{}{
 		"message": "Hello from Go Lambda!",
-		"path":    path, // Include the path in the response if needed
 	}
 
 	// Marshal the response into JSON
 	responseBody, err := json.Marshal(body)
 	if err != nil {
-		return fmt.Errorf("failed to marshal response body: %v", err)
+		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to marshal response body: %v", err)
 	}
 
     // // Extract parameters
