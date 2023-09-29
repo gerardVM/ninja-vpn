@@ -22,13 +22,6 @@ resource "aws_api_gateway_method" "options" {
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_method" "post_method" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.lambda.id
-  http_method   = "POST"
-  authorization = "NONE"
-}
-
 resource "aws_api_gateway_method_response" "options" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   resource_id = aws_api_gateway_resource.options.id
@@ -45,6 +38,29 @@ resource "aws_api_gateway_method_response" "options" {
   }
   
   depends_on = [aws_api_gateway_method.options]
+}
+
+resource "aws_api_gateway_method" "post_method" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.lambda.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_method_response" "post_method" {
+  rest_api_id = aws_api_gateway_rest_api.api.id
+  resource_id = aws_api_gateway_resource.lambda.id
+  http_method = aws_api_gateway_method.post_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin"  = true,
+  }
+  response_models = {
+    "application/json" = "Empty"
+  }
+  
+  depends_on = [aws_api_gateway_method.post_method]
 }
 
 resource "aws_api_gateway_integration" "integration" {
@@ -68,7 +84,6 @@ resource "aws_api_gateway_integration" "options" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.options.id
   http_method             = aws_api_gateway_method.options.http_method
-  integration_http_method = "OPTIONS"
   type                    = "MOCK"
   # request_templates = {
   #   "application/json" = jsonencode({  # Assuming the Lambda expects JSON data
@@ -84,7 +99,7 @@ resource "aws_api_gateway_integration_response" "options" {
   status_code = aws_api_gateway_method_response.options.status_code
 
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type'",
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'",
     "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS,POST'",
     "method.response.header.Access-Control-Allow-Origin"  = "'*'", # Change
   }
