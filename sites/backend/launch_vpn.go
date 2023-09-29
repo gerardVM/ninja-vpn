@@ -163,7 +163,7 @@ func launchTerraform(directory string, action string) error {
 	return nil
 }
 
-func HandleRequest(request events.APIGatewayProxyRequest) error {
+func HandleRequest(request events.APIGatewayProxyRequest) (response events.APIGatewayProxyResponse, err error) {
 
 	// Assuming the request body contains JSON data
     var requestBody map[string]string
@@ -172,63 +172,84 @@ func HandleRequest(request events.APIGatewayProxyRequest) error {
         return fmt.Errorf("failed to unmarshal request body: %v", err)
     }
 
-    // Extract parameters
-    action 		 := requestBody["action"]
-    email 		 := requestBody["email"]
-    timezone 	 := requestBody["timezone"]
-    countdown 	 := requestBody["countdown"]
-    region 		 := requestBody["region"]
-
-	// Replace `repoURL` with the actual repository URL
-	repoURL := "https://github.com/gerardVM/ninja-vpn"
-
-	// Create a temporary directory
-	tempDir, err := ioutil.TempDir("", "temp-clone")
-	if err != nil {
-		return fmt.Errorf("failed to create temp directory: %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	// Clone the repository
-	err = cloneRepository(repoURL, tempDir)
-	if err != nil {
-		return fmt.Errorf("failed to clone repository: %v", err)
+	// Prepare your response
+	headers := map[string]string{
+		"Content-Type": "application/json",
+		"Access-Control-Allow-Origin": "*", // Add necessary CORS headers
 	}
 
-	// Unencrypt the config.enc.yaml file
-	err = decryptConfigFile(filepath.Join(tempDir,"config.enc.yaml"), filepath.Join(tempDir, "config.yaml"))
-	if err != nil {
-		fmt.Println(err)
+	body := map[string]interface{}{
+		"message": "Hello from Go Lambda!",
+		"path":    path, // Include the path in the response if needed
 	}
 
-	// Update the file config.yaml file
-	err = updateConfigFile(tempDir, action, email, timezone, countdown, region)
+	// Marshal the response into JSON
+	responseBody, err := json.Marshal(body)
 	if err != nil {
-		return fmt.Errorf("failed to create config.yaml file: %v", err)
+		return fmt.Errorf("failed to marshal response body: %v", err)
 	}
 
-	terraformDir := filepath.Join(tempDir, "ops/terraform/aws/vpn")
+    // // Extract parameters
+    // action 		 := requestBody["action"]
+    // email 		 := requestBody["email"]
+    // timezone 	 := requestBody["timezone"]
+    // countdown 	 := requestBody["countdown"]
+    // region 		 := requestBody["region"]
 
-	// Edit the file preferences.tf
-	err = editPreferencesFile(filepath.Join(terraformDir, "templates/00-preferences.tpl"), filepath.Join(terraformDir, "00-preferences.tf"), region, strings.Split(email,"@")[0]) // Remember to update the path
-	if err != nil {
-		return fmt.Errorf("failed to edit preferences.tf file: %v", err)
-	}
+	// // Replace `repoURL` with the actual repository URL
+	// repoURL := "https://github.com/gerardVM/ninja-vpn"
 
-	err = os.Chmod(filepath.Join(terraformDir, "00-preferences.tf"), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to change permissions of preferences.tf file: %v", err)
-	}
+	// // Create a temporary directory
+	// tempDir, err := ioutil.TempDir("", "temp-clone")
+	// if err != nil {
+	// 	return fmt.Errorf("failed to create temp directory: %v", err)
+	// }
+	// defer os.RemoveAll(tempDir)
 
-	// Launch Terraform
-	err = launchTerraform(terraformDir, action)
-	if err != nil {
-		return fmt.Errorf("failed to launch Terraform: %v", err)
-	}
+	// // Clone the repository
+	// err = cloneRepository(repoURL, tempDir)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to clone repository: %v", err)
+	// }
 
-	fmt.Println("Done! Parameters: ", action, email, timezone, countdown, region)
+	// // Unencrypt the config.enc.yaml file
+	// err = decryptConfigFile(filepath.Join(tempDir,"config.enc.yaml"), filepath.Join(tempDir, "config.yaml"))
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
-	return nil
+	// // Update the file config.yaml file
+	// err = updateConfigFile(tempDir, action, email, timezone, countdown, region)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to create config.yaml file: %v", err)
+	// }
+
+	// terraformDir := filepath.Join(tempDir, "ops/terraform/aws/vpn")
+
+	// // Edit the file preferences.tf
+	// err = editPreferencesFile(filepath.Join(terraformDir, "templates/00-preferences.tpl"), filepath.Join(terraformDir, "00-preferences.tf"), region, strings.Split(email,"@")[0]) // Remember to update the path
+	// if err != nil {
+	// 	return fmt.Errorf("failed to edit preferences.tf file: %v", err)
+	// }
+
+	// err = os.Chmod(filepath.Join(terraformDir, "00-preferences.tf"), 0644)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to change permissions of preferences.tf file: %v", err)
+	// }
+
+	// // Launch Terraform
+	// err = launchTerraform(terraformDir, action)
+	// if err != nil {
+	// 	return fmt.Errorf("failed to launch Terraform: %v", err)
+	// }
+
+	// fmt.Println("Done! Parameters: ", action, email, timezone, countdown, region)
+
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Headers:    headers,
+		Body:       string(responseBody),
+	}, nil
 }
 
 func main() {
