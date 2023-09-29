@@ -3,8 +3,8 @@ resource "aws_api_gateway_rest_api" "api" {
   description = "Ninja VPN API"
 }
 
-resource "aws_api_gateway_resource" "cors" {
-  path_part   = "{cors+}"
+resource "aws_api_gateway_resource" "options" {
+  path_part   = "{proxy+}"
   parent_id   = aws_api_gateway_rest_api.api.root_resource_id
   rest_api_id = aws_api_gateway_rest_api.api.id
 }
@@ -15,10 +15,9 @@ resource "aws_api_gateway_resource" "lambda" {
   rest_api_id = aws_api_gateway_rest_api.api.id
 }
 
-resource "aws_api_gateway_method" "cors" {
+resource "aws_api_gateway_method" "options" {
   rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.cors.id
-  # http_method   = "POST"
+  resource_id   = aws_api_gateway_resource.options.id
   http_method   = "OPTIONS"
   authorization = "NONE"
 }
@@ -30,10 +29,10 @@ resource "aws_api_gateway_method" "post_method" {
   authorization = "NONE"
 }
 
-resource "aws_api_gateway_method_response" "cors" {
+resource "aws_api_gateway_method_response" "options" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.cors.id
-  http_method = aws_api_gateway_method.cors.http_method
+  resource_id = aws_api_gateway_resource.options.id
+  http_method = aws_api_gateway_method.options.http_method
   status_code = "200"
 
   response_parameters = {
@@ -45,7 +44,7 @@ resource "aws_api_gateway_method_response" "cors" {
     "application/json" = "Empty"
   }
   
-  depends_on = [aws_api_gateway_method.cors]
+  depends_on = [aws_api_gateway_method.options]
 }
 
 resource "aws_api_gateway_integration" "integration" {
@@ -65,24 +64,24 @@ resource "aws_api_gateway_integration" "integration" {
   }
 }
 
-resource "aws_api_gateway_integration" "cors" {
+resource "aws_api_gateway_integration" "options" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.cors.id
-  http_method             = aws_api_gateway_method.cors.http_method
-  # integration_http_method = "OPTIONS"
+  resource_id             = aws_api_gateway_resource.options.id
+  http_method             = aws_api_gateway_method.options.http_method
+  integration_http_method = "OPTIONS"
   type                    = "MOCK"
-  request_templates = {
-    "application/json" = jsonencode({  # Assuming the Lambda expects JSON data
-      "statusCode" = "200"          # Pass the entire request body to the Lambda
-    })
-  }
+  # request_templates = {
+  #   "application/json" = jsonencode({  # Assuming the Lambda expects JSON data
+  #     "statusCode" = "200"          # Pass the entire request body to the Lambda
+  #   })
+  # }
 }
 
-resource "aws_api_gateway_integration_response" "cors" {
+resource "aws_api_gateway_integration_response" "options" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.cors.id
-  http_method = aws_api_gateway_method.cors.http_method
-  status_code = aws_api_gateway_method_response.cors.status_code
+  resource_id = aws_api_gateway_resource.options.id
+  http_method = aws_api_gateway_method.options.http_method
+  status_code = aws_api_gateway_method_response.options.status_code
 
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type'",
@@ -90,7 +89,7 @@ resource "aws_api_gateway_integration_response" "cors" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'", # Change
   }
 
-  depends_on = [aws_api_gateway_integration.cors, aws_api_gateway_method_response.cors]
+  depends_on = [aws_api_gateway_integration.options, aws_api_gateway_method_response.options]
 }
 
 resource "aws_api_gateway_deployment" "deployment" {
