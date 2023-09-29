@@ -16,6 +16,13 @@ resource "aws_api_gateway_method" "method" {
   authorization = "NONE"
 }
 
+resource "aws_api_gateway_method" "post_method" {
+  rest_api_id   = aws_api_gateway_rest_api.api.id
+  resource_id   = aws_api_gateway_resource.resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
 resource "aws_api_gateway_method_response" "cors" {
   rest_api_id = aws_api_gateway_rest_api.api.id
   resource_id = aws_api_gateway_resource.resource.id
@@ -34,7 +41,7 @@ resource "aws_api_gateway_method_response" "cors" {
 resource "aws_api_gateway_integration" "integration" {
   rest_api_id             = aws_api_gateway_rest_api.api.id
   resource_id             = aws_api_gateway_resource.resource.id
-  http_method             = aws_api_gateway_method.method.http_method
+  http_method             = aws_api_gateway_method.post_method.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.vpn_controller.invoke_arn
@@ -44,6 +51,19 @@ resource "aws_api_gateway_integration" "integration" {
   request_templates = {
     "application/json" = jsonencode({  # Assuming the Lambda expects JSON data
       "body" = "$input.body"          # Pass the entire request body to the Lambda
+    })
+  }
+}
+
+resource "aws_api_gateway_integration" "cors" {
+  rest_api_id             = aws_api_gateway_rest_api.api.id
+  resource_id             = aws_api_gateway_resource.resource.id
+  http_method             = aws_api_gateway_method.method.http_method
+  integration_http_method = "OPTIONS"
+  type                    = "MOCK"
+  request_templates = {
+    "application/json" = jsonencode({  # Assuming the Lambda expects JSON data
+      "statusCode" = "200"          # Pass the entire request body to the Lambda
     })
   }
 }
@@ -64,12 +84,17 @@ resource "aws_api_gateway_integration_response" "cors" {
 resource "aws_api_gateway_deployment" "deployment" {
   depends_on = [aws_api_gateway_integration.integration]
   rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = "launch"
+  stage_name  = "staging"
 }
+
+# resource "aws_api_gateway_deployment" "cors" {
+#   depends_on = [aws_api_gateway_integration.cors]
+#   rest_api_id = aws_api_gateway_rest_api.api.id
+#   stage_name  = "staging"
+# }
 
 resource "aws_api_gateway_gateway_response" "response_4xx" {
   rest_api_id = aws_api_gateway_rest_api.api.id
-  # response_type = "ACCESS_DENIED"
   response_type = "DEFAULT_4XX"
   status_code   = "404"
   response_templates = {
@@ -79,6 +104,8 @@ resource "aws_api_gateway_gateway_response" "response_4xx" {
   }
   response_parameters = {
     "gatewayresponse.header.Access-Control-Allow-Origin"  = "'*'", # Change
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'Content-Type'",
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'POST'",
   }
 }
 
@@ -93,5 +120,7 @@ resource "aws_api_gateway_gateway_response" "response_5xx" {
   }
   response_parameters = {
     "gatewayresponse.header.Access-Control-Allow-Origin"  = "'*'", # Change
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'Content-Type'",
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'POST'",
   }
 }
