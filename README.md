@@ -4,23 +4,19 @@ Ninja VPN is a really simple volatile VPN server that uses Wireguard in an AWS e
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/gerardVM/ninja-vpn)
 
-## The fancy expected result
 
-You just need to run something in the lines of this:
+## What to expect
 
-```bash
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{
-    "action": "deploy",
-    "email": "your_email@example.com",
-    "timezone": "Europe/Madrid",
-    "countdown": "50 minutes",
-    "region": "eu-west-1"
-  }' <your-api-gateway-endpoint>
-```
+Apply the terraform configuration in this repository and get the url of your website from the terraform output.
 
-And you will receive an email in few minutes with the VPN configuration and a QR code to scan with your Wireguard app.
+Access your S3 stored website and request for your own VPN server.
+
+### How the S3 website works
+
+The website is a static website hosted in S3. It is a simple HTML form that will send a POST request to the API Gateway endpoint.
+
+You will be identified by your email and the location you want your VPN server to be deployed. No registration is needed.
+
 
 ## How to use this repository
 
@@ -36,10 +32,15 @@ make tf-deploy TF_TARGET=api
 make tf-deploy TF_TARGET=vpn
 ```
 
+## What this API solution consists of
+
+Frontend --> API Gateway --> Request handler Lambda --> VPN builder Lambda --> VPN Server
+
+
 ## Contributing
 
 Pull requests are welcome
 
 ## License
 
-[MIT](LICENSE.txt)
+[BSL](LICENSE.txt)

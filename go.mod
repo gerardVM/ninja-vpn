@@ -3,6 +3,15 @@ module launch_vpn
 go 1.21.1
 
 require (
+	github.com/aws/aws-lambda-go v1.41.0
+	github.com/go-git/go-git/v5 v5.8.1
+	github.com/go-yaml/yaml v2.1.0+incompatible
+	github.com/hashicorp/go-version v1.6.0
+	github.com/hashicorp/hc-install v0.6.0
+	github.com/hashicorp/terraform-exec v0.19.0
+)
+
+require (
 	cloud.google.com/go v0.110.8 // indirect
 	cloud.google.com/go/compute v1.23.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
@@ -18,13 +27,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.3.1 // indirect
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
-	github.com/aws/aws-sdk-go v1.45.15 // indirect
-	github.com/aws/aws-lambda-go v1.41.0
-	github.com/go-git/go-git/v5 v5.8.1
-	github.com/go-yaml/yaml v2.1.0+incompatible
-	github.com/hashicorp/go-version v1.6.0
-	github.com/hashicorp/hc-install v0.6.0
-	github.com/hashicorp/terraform-exec v0.19.0
+	github.com/aws/aws-sdk-go v1.45.19 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dimchansky/utfbom v1.1.1 // indirect

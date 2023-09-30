@@ -1,19 +1,34 @@
-Copyright (c) 2023 GerardVM
+Ninja VPN Business Source License 1.1
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This License governs use of the accompanying software. If you use the software, you accept this License. If you do not accept the License, do not use the software.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Definitions
+    1.1. "Commercial Use" means distribution or otherwise making the Software available to a third party.
+    1.2. "Derivative Work" means a work based upon the Software.
+    1.3. "Network Use" means use of the Software over a computer network, including but not limited to the internet.
+    1.4. "Source Code" means the preferred form of the Software for making modifications to it.
+    1.5. "Object Code" means any non-Source Code form of the Software.
+    1.6. "Redistribution" means Commercial Use, non-commercial use, or Network Use.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. Grant of Rights
+    2.1. Free Use Grant. You may use the Software for any non-commercial purpose, subject to the restrictions in this License.
+    2.2. No Redistribution Without Express License. You may not redistribute the Software, or any Derivative Works thereof, without the express written permission of the copyright holder(s). If you want to redistribute the Software, contact [Your Contact Information].
+    2.3. Commercial Use License. Subject to the terms and conditions of this License, you are licensed to Commercial Use the Software.
+
+3. Restrictions
+    3.1. Redistribution Restrictions. You may not redistribute the Software, or any Derivative Works thereof, in any manner that would cause the Software, in whole or in part, to become subject to an Excluded License.
+    3.2. Prohibition on Distribution of Derivative Works. You may not distribute any Derivative Work without express written permission from the copyright holder(s).
+    3.3. Excluded Licenses. You may not redistribute the Software under any license other than this License.
+
+4. Term and Termination
+    4.1. Term. This License is effective as of the date you accept it. The License will end if you breach it. Upon termination, you must cease all use of the Software and destroy all copies, full or partial, of the Software.
+
+5. Disclaimer of Warranty and Limitation of Liability
+    5.1. No Warranty. The Software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees or conditions.
+    5.2. Limitation of Liability. Under no circumstances shall the contributors be liable for any claim or damages.
+
+6. General
+    6.1. Spanish's Law. The laws of Spain govern this License.
+    6.2. Entire Agreement; Severability. This License constitutes the entire agreement between the parties concerning the subject matter hereof. If any provision of this License is held to be unenforceable, such provision shall be reformed only to the extent necessary to make it enforceable.
+    6.3. Dispute Resolution. Any disputes will be resolved by Spanish authorities in Spain.
+
