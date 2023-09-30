@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 	"encoding/json"
     "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-lambda-go/events"
@@ -11,28 +12,54 @@ import (
     lambda_trigger "github.com/aws/aws-sdk-go/service/lambda"
 )
 
+func invokeLambda(action, email, timezone, countdown, region string) error {
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("eu-west-3")},
+	)
+	if err != nil {
+		log.Fatalf("failed to create session: %v", err)
+	}
+
+	svc := lambda_trigger.New(sess)
+
+	fmt.Println("Action: ", action, ", Email: ", email, ", Timezone: ", timezone, ", Countdown: ", countdown, ", Region: ", region)
+
+	input := &lambda_trigger.InvokeInput{
+		FunctionName: aws.String("vpn-controller"),
+		Payload:      []byte("{\"ACTION\":\"" + action + "\",\"EMAIL\":\"" + email + "\",\"TIMEZONE\":\"" + timezone + "\",\"COUNTDOWN\":\"" + countdown + "\",\"REGION\":\"" + region + "\"}"),
+	}
+
+	_, err = svc.Invoke(input)
+	if err != nil {
+		log.Fatalf("failed to invoke function: %v", err)
+	}
+
+	return nil
+}
+
+
 func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 // func HandleRequest(request events.APIGatewayProxyRequest) error {
 
 	// Assuming the request body contains JSON data
-    // var requestBody map[string]string
-    // err := json.Unmarshal([]byte(request.Body), &requestBody)
-    // if err != nil {
-    //     return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to unmarshal request body: %v", err)
-    // }
+    var requestBody map[string]string
+    err := json.Unmarshal([]byte(request.Body), &requestBody)
+    if err != nil {
+        return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to unmarshal request body: %v", err)
+    }
 
 	// Extract parameters
-	// action 		 := requestBody["action"]
-	// email 		 := requestBody["email"]
-	// timezone 	 := requestBody["timezone"]
-	// countdown 	 := requestBody["countdown"]
-	// region 		 := requestBody["region"]
+	action 		 := requestBody["action"]
+	email 		 := requestBody["email"]
+	timezone 	 := requestBody["timezone"]
+	countdown 	 := requestBody["countdown"]
+	region 		 := requestBody["region"]
 
-	action := "deploy"
-	email := "valverdegerard@gmail.com"
-	timezone := "Europe/Paris"
-	countdown := "10 minutes"
-	region := "eu-west-2"
+	// action := "deploy"
+	// email := "valverdegerard@gmail.com"
+	// timezone := "Europe/Paris"
+	// countdown := "10 minutes"
+	// region := "eu-west-2"
 
 	// Prepare your response
 	headers := map[string]string{
@@ -51,32 +78,10 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	}
 
 	// Call lambda function
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-west-3")},
-	)
-	if err != nil {
-		log.Fatalf("failed to create session: %v", err)
-	}
+	go invokeLambda(action, email, timezone, countdown, region)
 
-	svc := lambda_trigger.New(sess)
-
-	input := &lambda_trigger.InvokeInput{
-		FunctionName: aws.String("vpn-controller"),
-		Payload:      []byte("{\"action\":\"" + action + "\",\"email\":\"" + email + "\",\"timezone\":\"" + timezone + "\",\"countdown\":\"" + countdown + "\",\"region\":\"" + region + "\"}"),
-	}	
-
-	fmt.Println("flag6")
-
-	result, err := svc.Invoke(input)
-	if err != nil {
-		log.Fatalf("failed to invoke function: %v", err)
-	}
-
-	fmt.Println("flag7")
-
-	fmt.Println(string(result.Payload))
-
-	fmt.Println("flag8")
+	// Sleep for 1 second
+	time.Sleep(time.Second)
 
 	// Unmarshal the response into JSON
 	return events.APIGatewayProxyResponse{

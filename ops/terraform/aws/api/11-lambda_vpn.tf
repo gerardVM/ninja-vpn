@@ -66,11 +66,3 @@ resource "aws_iam_role_policy_attachment" "launch_vpn" {
   policy_arn = aws_iam_policy.vpn_controller.arn
   role       = aws_iam_role.lambda_execution_role.name
 }
-
-resource "aws_lambda_permission" "allow_trigger_lambda" {
-  statement_id  = "AllowExecutionFromLambda"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.vpn_controller.function_name
-  principal     = "lambda.amazonaws.com"
-  source_arn    = aws_lambda_function.vpn_controller_trigger.arn
-}

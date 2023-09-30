@@ -37,7 +37,7 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
         Action = [
           "lambda:InvokeFunction"
         ]
-        Resource = "*"
+        Resource = aws_lambda_function.vpn_controller.arn
       },
       {
         Effect = "Allow"
@@ -46,7 +46,7 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = "*"
+        Resource = "arn:aws:logs:*:*:*"
       }
     ]
   })

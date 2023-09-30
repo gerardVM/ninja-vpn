@@ -3,7 +3,8 @@ package main
 import (
 	"os"
 	"fmt"
-	"log"
+	"log"	
+	"encoding/json"
 	"context"
 	"strings"
 	"io/ioutil"
@@ -161,7 +162,7 @@ func launchTerraform(directory string, action string) error {
 	return nil
 }
 
-func HandleRequest() error {
+func HandleRequest(ctx context.Context, event json.RawMessage) error {
 
 	// // Assuming the request body contains JSON data
     // var requestBody map[string]string
@@ -171,11 +172,23 @@ func HandleRequest() error {
     // }
 
 	// Extract parameters
-	action 		 := os.Getenv("ACTION")
-	email 		 := os.Getenv("EMAIL")
-	timezone 	 := os.Getenv("TIMEZONE")
-	countdown 	 := os.Getenv("COUNTDOWN")
-	region 		 := os.Getenv("REGION")
+	var inputData map[string]string
+	err := json.Unmarshal([]byte(event), &inputData)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal request body: %v", err)
+	}
+
+	// Extract parameters
+	action 		 := inputData["ACTION"]
+	fmt.Println("Action: ", action)
+	email 		 := inputData["EMAIL"]
+	fmt.Println("Email: ", email)
+	timezone 	 := inputData["TIMEZONE"]
+	fmt.Println("Timezone: ", timezone)
+	countdown 	 := inputData["COUNTDOWN"]
+	fmt.Println("Countdown: ", countdown)
+	region 		 := inputData["REGION"]
+	fmt.Println("Region: ", region)
 
 	// Replace `repoURL` with the actual repository URL
 	repoURL := "https://github.com/gerardVM/ninja-vpn"
