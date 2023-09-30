@@ -1,9 +1,8 @@
 regions=$(aws ec2 describe-regions --output text --query 'Regions[*].RegionName')
 
 # Loop through each region
-# for region in $regions
-# do
-    region="us-east-1"
+for region in $regions
+do
     echo "Region: $region"
     
     # Set the region for the AWS CLI
@@ -24,4 +23,4 @@ regions=$(aws ec2 describe-regions --output text --query 'Regions[*].RegionName'
     echo "$ninja_policies"
     
     echo "------------------------"
-# done
+done
