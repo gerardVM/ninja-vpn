@@ -1,5 +1,5 @@
 TF_COMPONENT    ?= aws
-TF_TARGET       ?= api
+TF_TARGET       ?= vpn
 TF_DIR          := ${PWD}/ops/terraform/${TF_COMPONENT}/${TF_TARGET}
 
 VPN_REGION      := $(shell yq -r '.region' config.yaml)
@@ -35,9 +35,9 @@ tf-apply:
 tf-output:
 	@cd ${TF_DIR} && terraform output -json
 
-tf-deploy: tf-init tf-plan tf-apply
+tf-deploy: set-vpn-preferences-file tf-init tf-plan tf-apply
 
-tf-destroy: tf-init
+tf-destroy: set-vpn-preferences-file tf-init
 	@cd ${TF_DIR} && terraform destroy
 
 update-lambda:

@@ -26,6 +26,8 @@ make tf-deploy TF_TARGET=api
 ```
 
 ### Deploy the VPN manually
+
+Set parameters in config.yaml, including: email, timezone, region and countdown. Then run:
   
 ```bash
 make tf-deploy TF_TARGET=vpn

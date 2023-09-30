@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_execution_role" {
-  name = "lambda_execution-${var.suffix}"
+  name = "ninja-lambda_execution-${var.suffix}"
   
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -43,7 +43,7 @@ data "archive_file" "lambda_function" {
 }
 
 resource "aws_iam_policy" "termination_policy" {
-  name        = "cloudwatch_policy-${var.suffix}"
+  name        = "ninja-cloudwatch_policy-${var.suffix}"
   description = "Allows Lambda to delete a CloudWatch event rule and terminate an EC2 instance"
   
   policy = jsonencode({
