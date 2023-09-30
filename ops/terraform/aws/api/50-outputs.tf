@@ -1,5 +1,4 @@
 output endpoint {
-  value       = "${aws_api_gateway_deployment.deployment.invoke_url}${aws_api_gateway_resource.resource.path}"
+  value       = "${aws_apigatewayv2_api.api.execution_arn}/staging/lambda"
   description = "Information about the api gateway"
-  depends_on  = [aws_api_gateway_deployment.deployment, aws_api_gateway_resource.resource]
 }

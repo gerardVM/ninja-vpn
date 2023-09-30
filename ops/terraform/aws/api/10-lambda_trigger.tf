@@ -17,15 +17,15 @@ resource "aws_iam_role" "lambda_trigger_role" {
 
 resource "aws_lambda_function" "vpn_controller_trigger" {
   function_name    = "vpn-controller-trigger"
-  filename         = "${path.module}/middleman.zip"
+  filename         = "${path.module}/trigger_lambda.zip"
   role             = aws_iam_role.lambda_trigger_role.arn
-  handler          = "middleman"
+  handler          = "trigger_lambda"
   runtime          = "go1.x"
   # timeout          = 600
   # memory_size      = 2560
-  ephemeral_storage {
-    size = 9216
-  }
+  # ephemeral_storage {
+  #   size = 9216
+  # }
 
   # environment {
   #   variables = {
@@ -46,9 +46,18 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
       {
         Effect = "Allow"
         Action = [
-          "lambda:InvokeFunction"
+          "lambda:*"
         ]
-        Resource = aws_lambda_function.vpn_controller.arn
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "*"
       }
     ]
   })
