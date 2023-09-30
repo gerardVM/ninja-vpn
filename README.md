@@ -9,7 +9,7 @@ Ninja VPN is a really simple volatile VPN server that uses Wireguard in an AWS e
 
 Apply the terraform configuration in this repository and get the url of your website from the terraform output.
 
-Access your S3 stored website and request for your own VPN server.
+Access your Cloudfront url and request for your own VPN server.
 
 ### How the S3 website works
 
