@@ -21,17 +21,6 @@ resource "aws_lambda_function" "vpn_controller_trigger" {
   role             = aws_iam_role.lambda_trigger_role.arn
   handler          = "trigger_lambda"
   runtime          = "go1.x"
-  # timeout          = 600
-  # memory_size      = 2560
-  # ephemeral_storage {
-  #   size = 9216
-  # }
-
-  # environment {
-  #   variables = {
-  #     SENDER_EMAIL   = local.config.ses_sender_email
-  #   }
-  # }
 
   tags = local.tags
 }
@@ -46,7 +35,7 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
       {
         Effect = "Allow"
         Action = [
-          "lambda:*"
+          "lambda:InvokeFunction"
         ]
         Resource = "*"
       },
