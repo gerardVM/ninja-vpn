@@ -164,13 +164,6 @@ func launchTerraform(directory string, action string) error {
 
 func HandleRequest(ctx context.Context, event json.RawMessage) error {
 
-	// // Assuming the request body contains JSON data
-    // var requestBody map[string]string
-    // err := json.Unmarshal([]byte(request.Body), &requestBody)
-    // if err != nil {
-    //     return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to unmarshal request body: %v", err)
-    // }
-
 	// Extract parameters
 	var inputData map[string]string
 	err := json.Unmarshal([]byte(event), &inputData)
@@ -180,15 +173,10 @@ func HandleRequest(ctx context.Context, event json.RawMessage) error {
 
 	// Extract parameters
 	action 		 := inputData["ACTION"]
-	fmt.Println("Action: ", action)
 	email 		 := inputData["EMAIL"]
-	fmt.Println("Email: ", email)
 	timezone 	 := inputData["TIMEZONE"]
-	fmt.Println("Timezone: ", timezone)
 	countdown 	 := inputData["COUNTDOWN"]
-	fmt.Println("Countdown: ", countdown)
 	region 		 := inputData["REGION"]
-	fmt.Println("Region: ", region)
 
 	// Replace `repoURL` with the actual repository URL
 	repoURL := "https://github.com/gerardVM/ninja-vpn"

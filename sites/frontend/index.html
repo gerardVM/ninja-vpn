@@ -662,7 +662,6 @@
             requestBody['region'] = formData.get('aws_region');
             requestBody['countdown'] = formData.get('countdown_digit') + ' ' + formData.get('time_frame');
 
-            // fetch('https://n9e1fa3ah0.execute-api.eu-west-3.amazonaws.com/launch/lambda', {
             fetch('https://q1fg0jj597.execute-api.eu-west-3.amazonaws.com/staging/lambda', {
                 method: 'POST',
                 headers: {
@@ -673,9 +672,15 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
+                // Update the message element with a success message
+                var messageElement = document.getElementById('message');
+                messageElement.innerHTML = 'Form submitted successfully!';
             })
             .catch((error) => {
                 console.error('Error:', error);
+                // Update the message element with an error message
+                var messageElement = document.getElementById('message');
+                messageElement.innerHTML = 'An error occurred. Please try again later.';
             });
         }
     </script>

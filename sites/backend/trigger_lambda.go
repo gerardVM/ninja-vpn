@@ -39,7 +39,6 @@ func invokeLambda(action, email, timezone, countdown, region string) error {
 
 
 func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-// func HandleRequest(request events.APIGatewayProxyRequest) error {
 
 	// Assuming the request body contains JSON data
     var requestBody map[string]string
@@ -54,12 +53,6 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	timezone 	 := requestBody["timezone"]
 	countdown 	 := requestBody["countdown"]
 	region 		 := requestBody["region"]
-
-	// action := "deploy"
-	// email := "valverdegerard@gmail.com"
-	// timezone := "Europe/Paris"
-	// countdown := "10 minutes"
-	// region := "eu-west-2"
 
 	// Prepare your response
 	headers := map[string]string{
