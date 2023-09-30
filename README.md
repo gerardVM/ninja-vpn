@@ -1,8 +1,7 @@
 # Ninja VPN
+![GitHub last commit](https://img.shields.io/github/last-commit/gerardVM/ninja-vpn)
 
 Ninja VPN is a really simple volatile VPN server that uses Wireguard in an AWS ec2 instance. You will be able to connect to your own VPN through the common Wireguard client software.
-
-![GitHub last commit](https://img.shields.io/github/last-commit/gerardVM/ninja-vpn)
 
 
 ## What to expect
@@ -34,7 +33,7 @@ make tf-deploy TF_TARGET=vpn
 
 ## What this API solution consists of
 
-Frontend --> API Gateway --> Request handler Lambda --> VPN builder Lambda --> VPN Server
+Cloudfront Frontend --> API Gateway --> Request handler Lambda --> VPN builder Lambda --> VPN Server
 
 
 ## Contributing
