@@ -1,0 +1,19 @@
+[
+    {
+        "AllowedHeaders": [
+            "Authorization",
+            "Content-Type"
+            
+        ],
+        "AllowedMethods": [
+            "POST",
+            "HEAD"
+        ],
+        "AllowedOrigins": [
+            "http://vpnn-site.s3-website.eu-west-3.amazonaws.com"
+        ],
+        "ExposeHeaders": [
+            "Access-Control-Allow-Origin"
+        ]
+    }
+]
