@@ -6,15 +6,15 @@ import (
 	"log"
 	"time"
 	"encoding/json"
-    "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-lambda-go/events"
-    "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/session"
 	lambda "github.com/aws/aws-lambda-go/lambda"
     lambda_trigger "github.com/aws/aws-sdk-go/service/lambda"
 )
 
 func invokeLambda(action, email, timezone, countdown, region string) error {
-	lambda_region = os.Getenv("API_REGION")
+	lambda_region := os.Getenv("API_REGION")
 
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(lambda_region)},
@@ -44,11 +44,11 @@ func invokeLambda(action, email, timezone, countdown, region string) error {
 func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
 	// Assuming the request body contains JSON data
-    var requestBody map[string]string
-    err := json.Unmarshal([]byte(request.Body), &requestBody)
-    if err != nil {
-        return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to unmarshal request body: %v", err)
-    }
+	var requestBody map[string]string
+	err := json.Unmarshal([]byte(request.Body), &requestBody)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to unmarshal request body: %v", err)
+	}
 
 	// Extract parameters
 	action 		 := requestBody["action"]
