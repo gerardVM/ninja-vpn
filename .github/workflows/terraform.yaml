@@ -36,11 +36,21 @@ jobs:
           wget -O /tmp/sops https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.amd64
           chmod +x /tmp/sops
           sudo cp /tmp/sops /usr/local/bin/sops
+      - name: Detect changes in go code
+        id: detect_changes
+        run: |
+          if [[ -z $(git diff --quiet HEAD^ HEAD sites/backend) ]]; then
+            echo "::set-output name=go_changes::true"
+          else-
+            echo "::set-output name=gochanges::false"
+          fi
       - name: Set up Go
+        if: steps.detect_changes.outputs.go_changes == 'true'
         uses: actions/setup-go@v4
         with:
           go-version: 1.21.1
       - name: Rebuild golang binaries
+        if: steps.detect_changes.outputs.go_changes == 'true'
         run: |
           make update-lambda-code
           make update-lambda-trigger-code
