@@ -2,15 +2,21 @@ resource "aws_s3_bucket" "bucket" {
     bucket = local.config.bucket_name
 }
 
-
 resource "aws_s3_bucket" "site" {
     bucket = "vpnn-site"
+}
+
+data "template_file" "index_html" {
+    template = "${file("${path.module}/../../../../sites/frontend/index_template.html")}"
+    vars = {
+        api_gateway_url = "${aws_apigatewayv2_api.api.api_endpoint}/${aws_apigatewayv2_stage.stage.name}${element(split(" ", aws_apigatewayv2_route.lambda.route_key),1)}"
+    }
 }
 
 resource "aws_s3_object" "index" {
     bucket = aws_s3_bucket.site.id
     key    = "index.html"
-    source = "../../../../sites/frontend/index.html"
+    source = data.template_file.index_html.rendered
     content_type = "text/html"
 }
 

@@ -12,7 +12,9 @@ KMS_KEY         ?= arn:aws:kms:eu-west-3:877759700856:key/b3ac1035-b1f6-424a-bfe
 
 
 set-vpn-preferences-file:
-	@cd ${TF_DIR} && sed 's|<USER>/<REGION>|${VPN_USER}/${VPN_REGION}|g' ./templates/00-preferences.tpl > ./00-preferences.tf
+	@cd ${TF_DIR} && if [ -f ./templates/00-preferences.tpl ]; then \
+		sed 's|<USER>/<REGION>|${VPN_USER}/${VPN_REGION}|g' ./templates/00-preferences.tpl > ./00-preferences.tf; \
+		fi
 
 decrypt-config:
 	@sops -d config.enc.yaml > config.yaml
