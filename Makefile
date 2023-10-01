@@ -6,7 +6,8 @@ VPN_REGION      := $(shell yq -r '.region' config.yaml)
 VPN_USER        := $(shell echo $(shell yq -r '.email' config.yaml) | cut -d'@' -f1)
 
 GOOS            := linux
-GOARCH          := amd64 
+GOARCH          := amd64
+CGO_ENABLED     := 0
 
 KMS_KEY         ?= arn:aws:kms:eu-west-3:877759700856:key/b3ac1035-b1f6-424a-bfe9-a6ec592e7487
 
