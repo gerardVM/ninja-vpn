@@ -16,7 +16,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 }
 
 resource "aws_lambda_function" "vpn_controller" {
-  function_name    = "vpn-controller"
+  function_name    = "ninja-vpn-controller"
   filename         = "${path.module}/launch_vpn.zip"
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "launch_vpn"

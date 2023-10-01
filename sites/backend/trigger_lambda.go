@@ -14,10 +14,10 @@ import (
 )
 
 func invokeLambda(action, email, timezone, countdown, region string) error {
-	region = os.Getenv("API_REGION")
+	lambda_region = os.Getenv("API_REGION")
 
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(region)},
+		Region: aws.String(lambda_region)},
 	)
 	if err != nil {
 		log.Fatalf("failed to create session: %v", err)
@@ -28,7 +28,7 @@ func invokeLambda(action, email, timezone, countdown, region string) error {
 	fmt.Println("Action: ", action, ", Email: ", email, ", Timezone: ", timezone, ", Countdown: ", countdown, ", Region: ", region)
 
 	input := &lambda_trigger.InvokeInput{
-		FunctionName: aws.String("vpn-controller"),
+		FunctionName: aws.String("ninja-vpn-controller"),
 		Payload:      []byte("{\"ACTION\":\"" + action + "\",\"EMAIL\":\"" + email + "\",\"TIMEZONE\":\"" + timezone + "\",\"COUNTDOWN\":\"" + countdown + "\",\"REGION\":\"" + region + "\"}"),
 	}
 
