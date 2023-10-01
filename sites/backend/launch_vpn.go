@@ -3,17 +3,16 @@ package main
 import (
 	"os"
 	"fmt"
-	"log"
+	"log"	
+	"encoding/json"
 	"context"
 	"strings"
 	"io/ioutil"
-	"encoding/json"
 	"path/filepath"
 	"go.mozilla.org/sops/decrypt"
 	"github.com/go-yaml/yaml"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/go-version"
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/hc-install/releases"
@@ -163,21 +162,21 @@ func launchTerraform(directory string, action string) error {
 	return nil
 }
 
-func HandleRequest(request events.APIGatewayProxyRequest) error {
+func HandleRequest(ctx context.Context, event json.RawMessage) error {
 
-	// Assuming the request body contains JSON data
-    var requestBody map[string]string
-    err := json.Unmarshal([]byte(request.Body), &requestBody)
-    if err != nil {
-        return fmt.Errorf("failed to unmarshal request body: %v", err)
-    }
+	// Extract parameters
+	var inputData map[string]string
+	err := json.Unmarshal([]byte(event), &inputData)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal request body: %v", err)
+	}
 
-    // Extract parameters
-    action 		 := requestBody["action"]
-    email 		 := requestBody["email"]
-    timezone 	 := requestBody["timezone"]
-    countdown 	 := requestBody["countdown"]
-    region 		 := requestBody["region"]
+	// Extract parameters
+	action 		 := inputData["ACTION"]
+	email 		 := inputData["EMAIL"]
+	timezone 	 := inputData["TIMEZONE"]
+	countdown 	 := inputData["COUNTDOWN"]
+	region 		 := inputData["REGION"]
 
 	// Replace `repoURL` with the actual repository URL
 	repoURL := "https://github.com/gerardVM/ninja-vpn"

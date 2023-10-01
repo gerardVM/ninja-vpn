@@ -1,39 +1,44 @@
-resource "aws_api_gateway_rest_api" "api" {
-  name = "ninja-vpn-api"
-}
-
-resource "aws_api_gateway_resource" "resource" {
-  path_part   = "lambda"
-  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
-  rest_api_id = aws_api_gateway_rest_api.api.id
-}
-
-resource "aws_api_gateway_method" "method" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
-  resource_id   = aws_api_gateway_resource.resource.id
-  http_method   = "POST"
-  authorization = "NONE"
-}
-
-resource "aws_api_gateway_integration" "integration" {
-  rest_api_id             = aws_api_gateway_rest_api.api.id
-  resource_id             = aws_api_gateway_resource.resource.id
-  http_method             = aws_api_gateway_method.method.http_method
-  integration_http_method = "POST"
-  type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.vpn_controller.invoke_arn
-  request_parameters = {
-    "integration.request.header.X-Amz-Invocation-Type" = "'Event'" # async -> 502 Bad Gateway but still works
-  }
-  request_templates = {
-    "application/json" = jsonencode({  # Assuming the Lambda expects JSON data
-      "body" = "$input.body"          # Pass the entire request body to the Lambda
-    })
+resource "aws_apigatewayv2_api" "api" {
+  name          = "ninja-vpn-api"
+  protocol_type = "HTTP"
+  cors_configuration {
+    allow_headers = ["*"]
+    allow_methods = ["POST"]
+    allow_origins = ["https://${aws_cloudfront_distribution.distribution.domain_name}"]
+    max_age       = 300
   }
 }
 
-resource "aws_api_gateway_deployment" "deployment" {
-  depends_on = [aws_api_gateway_integration.integration]
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  stage_name  = "launch"
+resource "aws_apigatewayv2_integration" "lambda" {
+  api_id                 = aws_apigatewayv2_api.api.id
+  integration_type       = "AWS_PROXY"
+  integration_method     = "POST"
+  integration_uri        = aws_lambda_function.vpn_controller_trigger.invoke_arn
+  passthrough_behavior   = "WHEN_NO_MATCH"
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_route" "lambda" {
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = "POST /lambda"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
+
+resource "aws_apigatewayv2_stage" "stage" {
+  api_id      = aws_apigatewayv2_api.api.id
+  name        = "staging"
+  auto_deploy = true
+  route_settings {
+    route_key = aws_apigatewayv2_route.lambda.route_key
+    detailed_metrics_enabled = false
+    throttling_burst_limit = 1
+    throttling_rate_limit = 1
+  }
+}
+
+resource "aws_apigatewayv2_deployment" "lambda" {
+  api_id      = aws_apigatewayv2_api.api.id
+  description = "Deployment for Lambda"
+
+  depends_on = [aws_apigatewayv2_route.lambda]
 }
