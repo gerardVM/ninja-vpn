@@ -18,6 +18,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 resource "aws_lambda_function" "vpn_controller" {
   function_name    = "ninja-vpn-controller"
   filename         = "${path.module}/launch_vpn.zip"
+  source_code_hash = filebase64sha256("${path.module}/launch_vpn.zip")
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "launch_vpn"
   runtime          = "go1.x"

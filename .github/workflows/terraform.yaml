@@ -26,7 +26,7 @@ jobs:
           role-to-assume: ${{ vars.ROLE_TO_ASSUME }}
           role-session-name: ninja-vpn
           aws-region: ${{ vars.AWS_REGION }}
-      - name: Setup Terraform
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.4.4
@@ -36,6 +36,14 @@ jobs:
           wget -O /tmp/sops https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux.amd64
           chmod +x /tmp/sops
           sudo cp /tmp/sops /usr/local/bin/sops
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.1
+      - name: Rebuild golang binaries
+        run: |
+          make update-lambda-code
+          make update-lambda-trigger-code
       - name: Terraform Plan
         run: |
           make decrypt-config

@@ -2,4 +2,5 @@ tfplan.out
 .terraform/
 terraform.tfstate*
 *.zip
+config.yaml
 ops/terraform/aws/vpn/00-preferences.tf
