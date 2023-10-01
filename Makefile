@@ -44,10 +44,8 @@ tf-deploy: set-vpn-preferences-file tf-init tf-plan tf-apply
 tf-destroy: set-vpn-preferences-file tf-init
 	@cd ${TF_DIR} && terraform destroy
 
-update-lambda:
+update-lambda-code:
 	@go build -o launch_vpn sites/backend/launch_vpn.go && zip ops/terraform/aws/api/launch_vpn.zip launch_vpn && rm launch_vpn
-	@cd ${TF_DIR} && terraform apply
 
-update-lambda-trigger:
+update-lambda-trigger-code:
 	@go build -o trigger_lambda sites/backend/trigger_lambda.go && zip ops/terraform/aws/api/trigger_lambda.zip trigger_lambda && rm trigger_lambda
-	@cd ${TF_DIR} && terraform apply
