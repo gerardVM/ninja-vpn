@@ -22,6 +22,12 @@ resource "aws_lambda_function" "vpn_controller_trigger" {
   handler          = "trigger_lambda"
   runtime          = "go1.x"
 
+  environment {
+    variables = {
+      API_REGION   = local.config.api_region
+    }
+  }
+
   tags = local.tags
 }
 

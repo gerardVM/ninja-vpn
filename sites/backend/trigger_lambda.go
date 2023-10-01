@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"fmt"
 	"log"
 	"time"
@@ -13,8 +14,10 @@ import (
 )
 
 func invokeLambda(action, email, timezone, countdown, region string) error {
+	region = os.Getenv("API_REGION")
+
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-west-3")},
+		Region: aws.String(region)},
 	)
 	if err != nil {
 		log.Fatalf("failed to create session: %v", err)
