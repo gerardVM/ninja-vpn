@@ -39,10 +39,10 @@ jobs:
       - name: Detect changes in go code
         id: detect_changes
         run: |
-          if [[ -z $(git diff --quiet HEAD^ HEAD sites/backend) ]]; then
-            echo "::set-output name=go_changes::true"
-          else-
-            echo "::set-output name=gochanges::false"
+          if [[ -z $(git diff HEAD -- sites/backend/*) ]]; then
+            echo "::set-output name=go_changes::false"
+          else
+            echo "::set-output name=gochanges::true"
           fi
       - name: Set up Go
         if: steps.detect_changes.outputs.go_changes == 'true'
