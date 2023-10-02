@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "site" {
 }
 
 data "template_file" "index_html" {
-    template = "${file("${path.module}/../../../../sites/frontend/index_template.html")}"
+    template = "${file("${path.module}/../../../../site/frontend/index_template.html")}"
     vars = {
         api_gateway_url = "${aws_apigatewayv2_api.api.api_endpoint}/${aws_apigatewayv2_stage.stage.name}${element(split(" ", aws_apigatewayv2_route.lambda.route_key),1)}"
     }
