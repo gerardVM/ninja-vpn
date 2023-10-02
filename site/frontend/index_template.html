@@ -2,17 +2,12 @@
 <html>
 <head>
     <title>Ninja VPN</title>
-    <script>
-        function disableButton() {
-            document.getElementById("submitBtn").disabled = true;
-        }
-    </script>
 </head>
 <body>
 
     <h1>Ninja VPN</h1>
 
-    <form id="customConfiguration" onsubmit="disableButton()">
+    <form id="customConfiguration">
         <label for="action">Action:</label>
         <select id="action" name="action">
             <option value="deploy">Deploy</option>
@@ -21,6 +16,7 @@
 
         <label for="timezone">Timezone:</label>
         <select id="timezone" name="timezone">
+            <option value='Europe/Moscow'>Europe/Moscow</option>
             <option value='America/Argentina/Buenos_Aires'>America/Argentina/Buenos_Aires</option>
             <option value='Atlantic/Azores'>Atlantic/Azores</option>
             <option value='Atlantic/Bermuda'>Atlantic/Bermuda</option>
@@ -32,7 +28,6 @@
             <option value='EST'>EST</option>
             <option value='Etc/Greenwich'>Etc/Greenwich</option>
             <option value='Europe/Madrid'>Europe/Madrid</option>
-            <option value='Europe/Moscow'>Europe/Moscow</option>
             <option value='GMT'>GMT</option>
             <option value='HST'>HST</option>
             <option value='MST'>MST</option>
@@ -81,8 +76,10 @@
         <label for="email">Email:</label>
         <input type="email" id="email" name="email"><br><br>
 
-        <input type="button" id="submitBtn" value="Submit" onclick="submitForm()">
+        <input type="button" id="submitBtn" value="Submit" onclick="submitForm(), this.disabled=true">
     </form>
+
+    <div id="message"></div>
 
     <script>
         function submitForm() {

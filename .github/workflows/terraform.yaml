@@ -39,7 +39,7 @@ jobs:
       - name: Detect changes in go code
         id: detect_changes
         run: |
-          if [[ -z $(git diff HEAD -- sites/backend/*) ]]; then
+          if [[ -z $(git diff HEAD -- site/backend/*) ]]; then
             echo "go_changes=false" >> $GITHUB_OUTPUT
           else
             echo "go_changes=true" >> $GITHUB_OUTPUT
