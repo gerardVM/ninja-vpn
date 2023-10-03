@@ -105,7 +105,7 @@
                 console.log('Success:', data);
                 // Update the message element with a success message
                 var messageElement = document.getElementById('message');
-                messageElement.innerHTML = 'Form submitted successfully!';
+                messageElement.innerHTML = data.message;
             })
             .catch((error) => {
                 console.error('Error:', error);

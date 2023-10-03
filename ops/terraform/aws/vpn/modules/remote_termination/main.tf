@@ -28,6 +28,7 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
     variables = {
       EIP_ID         = var.eip_id
       SENDER_EMAIL   = var.sender_email
+      REGION         = var.region
       SES_REGION     = var.ses_region
       RECEIVER_EMAIL = var.receiver_email
     }

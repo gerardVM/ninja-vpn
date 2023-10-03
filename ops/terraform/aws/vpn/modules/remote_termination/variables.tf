@@ -23,6 +23,11 @@ variable "ses_region" {
     description = "The AWS region that the notification is sent from."
 }
 
+variable "region" {
+    type        = string
+    description = "The AWS region that the user deployed his resources in."
+}
+
 variable "receiver_email" {
     type        = string
     description = "The email address that the notification is sent to."

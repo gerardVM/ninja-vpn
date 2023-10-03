@@ -17,7 +17,8 @@ def lambda_handler(event, context):
 
     # Send email notification
     sender_email = os.environ.get('SENDER_EMAIL')
-    region = os.environ.get('SES_REGION')
+    ses_region = os.environ.get('SES_REGION')
+    region = os.environ.get('REGION')
     receiver_email = os.environ.get('RECEIVER_EMAIL')
 
     destination = {'ToAddresses': [ receiver_email ]}
@@ -27,7 +28,7 @@ def lambda_handler(event, context):
         'Body': {'Text': {'Data': f'The VPN server in region {region} has been terminated for {receiver_email}.'}}
     }
     
-    ses = boto3.client('ses', region_name=region)
+    ses = boto3.client('ses', region_name=ses_region)
     ses.send_email(Destination=destination, Message=message, Source=source)
 
     return 'Success'
