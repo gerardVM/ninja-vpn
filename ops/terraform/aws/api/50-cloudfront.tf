@@ -16,6 +16,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     }
 
+    aliases             = [aws_route53_zone.hosted_zone.name]
     enabled             = true
     is_ipv6_enabled     = true
     default_root_object = "index.html"
