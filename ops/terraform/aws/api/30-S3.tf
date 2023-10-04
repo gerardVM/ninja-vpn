@@ -7,16 +7,16 @@ resource "aws_s3_bucket" "site" {
 }
 
 data "template_file" "index_html" {
-    template = "${file("${path.module}/../../../../site/frontend/index_template.html")}"
+    template = file(local.index_path)
     vars = {
         api_gateway_url = "${aws_apigatewayv2_api.api.api_endpoint}/${aws_apigatewayv2_stage.stage.name}${element(split(" ", aws_apigatewayv2_route.lambda.route_key),1)}"
     }
 }
 
 resource "aws_s3_object" "index" {
-    bucket = aws_s3_bucket.site.id
-    key    = "index.html"
-    source = data.template_file.index_html.rendered
+    bucket       = aws_s3_bucket.site.id
+    key          = "index.html"
+    content      = data.template_file.index_html.rendered
     content_type = "text/html"
 }
 

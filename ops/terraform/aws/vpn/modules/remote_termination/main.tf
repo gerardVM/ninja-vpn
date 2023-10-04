@@ -18,6 +18,7 @@ resource "aws_iam_role" "lambda_execution_role" {
 resource "aws_lambda_function" "terminate_instance_lambda" {
   function_name    = "${var.function_name}-${var.suffix}"
   filename         = "${path.module}/terminate_instance.zip"
+  source_code_hash = fileexists("${path.module}/terminate_instance.zip") ? filemd5("${path.module}/terminate_instance.zip") : null
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "terminate_instance.lambda_handler"
   runtime          = "python3.8"
@@ -28,6 +29,7 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
     variables = {
       EIP_ID         = var.eip_id
       SENDER_EMAIL   = var.sender_email
+      REGION         = var.region
       SES_REGION     = var.ses_region
       RECEIVER_EMAIL = var.receiver_email
     }
