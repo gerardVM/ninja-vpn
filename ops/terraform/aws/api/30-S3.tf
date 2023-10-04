@@ -17,7 +17,6 @@ resource "aws_s3_object" "index" {
     bucket       = aws_s3_bucket.site.id
     key          = "index.html"
     content      = data.template_file.index_html.rendered
-    # etag         = filemd5(local.index_path)
     content_type = "text/html"
 }
 
