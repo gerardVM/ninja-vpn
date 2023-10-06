@@ -16,6 +16,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 
     }
 
+    aliases             = [aws_route53_zone.hosted_zone.name]
     enabled             = true
     is_ipv6_enabled     = true
     default_root_object = "index.html"
@@ -48,7 +49,8 @@ resource "aws_cloudfront_distribution" "distribution" {
     }
 
     viewer_certificate {
-        cloudfront_default_certificate = true
+        acm_certificate_arn = aws_acm_certificate.cert.arn
+        ssl_support_method  = "sni-only"
     }
 
     # tags = {
