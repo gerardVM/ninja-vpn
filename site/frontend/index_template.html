@@ -82,7 +82,8 @@
             fetch('${api_gateway_url}', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-origin-verify': 'valid-token'
                 },
                 body: JSON.stringify(requestBody),
             })
