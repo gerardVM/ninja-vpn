@@ -7,15 +7,15 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-func handler(ctx context.Context, request events.APIGatewayV2CustomAuthorizerV1Request) (events.APIGatewayCustomAuthorizerResponse, error) {
+func handler(ctx context.Context, request events.APIGatewayV2CustomAuthorizerV2Request) (events.APIGatewayCustomAuthorizerResponse, error) {
 	headers := request.Headers
 	originVerifyHeader := headers["x-origin-verify"]
 
 	if originVerifyHeader == "valid-token" {
-		return generatePolicy("testing_the_lambda_authorizer", "Allow", request.MethodArn), nil
+		return generatePolicy("testing_the_lambda_authorizer", "Allow", request.RouteArn), nil
 	}
 
-	return generatePolicy("testing_the_lambda_authorizer", "Deny", request.MethodArn), nil
+	return generatePolicy("testing_the_lambda_authorizer", "Deny", request.RouteArn), nil
 }
 
 func generatePolicy(principalID, effect, resource string) events.APIGatewayCustomAuthorizerResponse {
