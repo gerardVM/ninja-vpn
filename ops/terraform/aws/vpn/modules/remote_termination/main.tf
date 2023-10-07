@@ -22,7 +22,7 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "terminate_instance.lambda_handler"
   runtime          = "python3.8"
-  timeout          = 10
+  timeout          = 60
   memory_size      = 128
 
   environment {
