@@ -15,7 +15,7 @@ Content-Transfer-Encoding: 7bit
 </head>
 <body>
   <h2>WireGuard VPN ($AWS_REGION)</h2>
-  <p>Instructions: Download the wireguard client for your device from <a href="https://www.wireguard.com/install/">https://www.wireguard.com/install/</a>, Google Play or equivalents.</p>
+  <p>Instructions: Download WireGuard for your device from <a href="https://www.wireguard.com/install/">https://www.wireguard.com/install/</a>, Google Play or equivalents.</p>
   <p>You can set up a new connection in WireGuard by either scanning the QR code or using the attached config file.</p>
   <p>This VPN server will be available for just $duration.</p>
   <img src="cid:user-qr.png" alt="QR code for your VPN" />

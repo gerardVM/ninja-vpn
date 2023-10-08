@@ -1,4 +1,26 @@
 resource "aws_cloudfront_distribution" "distribution" {
+
+    origin {
+        connection_attempts = 3
+        connection_timeout  = 10
+        domain_name = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
+        origin_id   = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
+
+        custom_header {
+            name  = "x-origin-verify"
+            value = "valid-token"
+        }
+
+        custom_origin_config {
+            http_port              = 80
+            https_port             = 443
+            origin_keepalive_timeout = 5
+            origin_protocol_policy = "https-only"
+            origin_read_timeout    = 30
+            origin_ssl_protocols   = ["TLSv1.2"]
+        }
+    }
+    
     origin {
         connection_attempts = 3
         connection_timeout  = 10
@@ -27,6 +49,26 @@ resource "aws_cloudfront_distribution" "distribution" {
         allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
         cached_methods   = ["GET", "HEAD"]
         target_origin_id = aws_s3_bucket_website_configuration.site.website_endpoint
+
+        forwarded_values {
+            query_string = false
+
+            cookies {
+                forward = "none"
+            }
+        }
+
+        viewer_protocol_policy = "redirect-to-https"
+        min_ttl                = 0
+        default_ttl            = 3600
+        max_ttl                = 86400
+    }
+
+    ordered_cache_behavior {
+        path_pattern     = "/${aws_apigatewayv2_stage.stage.name}/*"
+        allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+        cached_methods   = ["GET", "HEAD"]
+        target_origin_id = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
 
         forwarded_values {
             query_string = false

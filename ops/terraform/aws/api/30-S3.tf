@@ -9,7 +9,7 @@ resource "aws_s3_bucket" "site" {
 data "template_file" "index_html" {
     template = file(local.index_path)
     vars = {
-        api_gateway_url = "${aws_apigatewayv2_api.api.api_endpoint}/${aws_apigatewayv2_stage.stage.name}${element(split(" ", aws_apigatewayv2_route.lambda.route_key),1)}"
+        api_gateway_url = "https://vpnn.ninja/${aws_apigatewayv2_stage.stage.name}${element(split(" ", aws_apigatewayv2_route.lambda.route_key),1)}"
         root_domain     = aws_route53_zone.hosted_zone.name
     }
 }
