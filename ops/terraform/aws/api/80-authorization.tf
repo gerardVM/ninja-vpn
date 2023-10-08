@@ -2,12 +2,6 @@ module "authorization" {
   source = "./modules/authorizer"
 }
 
-# module "lambda_injector" {
-#   source = "./modules/injector"
-
-#   api_gateway_url = "${aws_apigatewayv2_api.api.api_endpoint}/${aws_apigatewayv2_stage.stage.name}${element(split(" ", aws_apigatewayv2_route.lambda.route_key),1)}"
-# }
-
 resource "aws_iam_role" "authorizer_lambda_trigger_role" {
   name = "authorizer_lambda_trigger_role"
   

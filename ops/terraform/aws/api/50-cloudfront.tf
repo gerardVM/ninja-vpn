@@ -1,3 +1,7 @@
+module "header_injector" {
+  source = "./modules/injector"
+}
+
 resource "aws_cloudfront_distribution" "distribution" {
 
     origin {
@@ -5,11 +9,6 @@ resource "aws_cloudfront_distribution" "distribution" {
         connection_timeout  = 10
         domain_name = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
         origin_id   = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
-
-        custom_header {
-            name  = "x-origin-verify"
-            value = "valid-token"
-        }
 
         custom_origin_config {
             http_port              = 80
@@ -69,6 +68,11 @@ resource "aws_cloudfront_distribution" "distribution" {
         allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
         cached_methods   = ["GET", "HEAD"]
         target_origin_id = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
+
+        lambda_function_association {
+            event_type   = "viewer-request"
+            lambda_arn   = module.header_injector.qualified_arn
+        }
 
         forwarded_values {
             query_string = false
