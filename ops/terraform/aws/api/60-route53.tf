@@ -16,24 +16,24 @@ resource "aws_route53_record" "validation" {
   ttl     = 60
   }
 
-resource "aws_route53_record" "all_subdomains" {
-  name   = "*.${local.domain_name}"
-  type   = "A"
-  zone_id = aws_route53_zone.hosted_zone.zone_id
-  alias {
-    name                   = aws_cloudfront_distribution.distribution.domain_name
-    zone_id                = aws_cloudfront_distribution.distribution.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
+# resource "aws_route53_record" "all_subdomains" {
+#   name   = "*.${local.domain_name}"
+#   type   = "A"
+#   zone_id = aws_route53_zone.hosted_zone.zone_id
+#   alias {
+#     name                   = aws_cloudfront_distribution.distribution.domain_name
+#     zone_id                = aws_cloudfront_distribution.distribution.hosted_zone_id
+#     evaluate_target_health = false
+#   }
+# }
 
-resource "aws_route53_record" "root_domain" {
-  name   = local.domain_name
-  type   = "A"
-  zone_id = aws_route53_zone.hosted_zone.zone_id
-  alias {
-    name                   = aws_cloudfront_distribution.distribution.domain_name
-    zone_id                = aws_cloudfront_distribution.distribution.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
+# resource "aws_route53_record" "root_domain" {
+#   name   = local.domain_name
+#   type   = "A"
+#   zone_id = aws_route53_zone.hosted_zone.zone_id
+#   alias {
+#     name                   = aws_cloudfront_distribution.distribution.domain_name
+#     zone_id                = aws_cloudfront_distribution.distribution.hosted_zone_id
+#     evaluate_target_health = false
+#   }
+# }
