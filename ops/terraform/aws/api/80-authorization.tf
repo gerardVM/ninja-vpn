@@ -1,5 +1,16 @@
 module "authorization" {
   source = "./modules/authorizer"
+
+  ssm_secret_arn = module.header_rotation.parameter_arn
+}
+
+module "header_rotation" {
+  source = "./modules/header_rotation"
+
+  cloudfront_distribution_arn       = aws_cloudfront_distribution.distribution.arn
+  cloudfront_distribution_id        = aws_cloudfront_distribution.distribution.id
+  cloudfront_origin_id              = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
+  cloudfront_authorizer_header_name = "x-origin-verify"
 }
 
 resource "aws_iam_role" "authorizer_lambda_trigger_role" {

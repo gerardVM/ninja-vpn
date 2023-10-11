@@ -49,6 +49,3 @@ update-lambda-trigger-code:
 
 update-lambda-authorizer-code:
 	@CGO_ENABLED=0 go build -o authorize ops/terraform/aws/api/modules/authorizer/authorize.go && zip ops/terraform/aws/api/modules/authorizer/authorize.zip authorize && rm authorize
-
-update-lambda-injector-code:
-	@CGO_ENABLED=0 go build -o injector ops/terraform/aws/api/modules/injector/injector.go && zip ops/terraform/aws/api/modules/injector/injector.zip injector && rm injector
