@@ -5,8 +5,7 @@ resource "aws_apigatewayv2_api" "api" {
     allow_headers = ["*"]
     allow_methods = ["POST"]
     # allow_origins = ["https://${aws_cloudfront_distribution.distribution.domain_name}", "https://${aws_route53_record.root_domain.name}"]
-    allow_origins = ["https://d3nrs2v0qp4vog.cloudfront.net"]
-    # allow_origins = ["*"]
+    allow_origins = ["*"]
     max_age       = 300
   }
 }
