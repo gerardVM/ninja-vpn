@@ -12,11 +12,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
-func read_ssm_parameter(parameter_arn string) (string, error) {
+func read_ssm_parameter(parameter_name string) (string, error) {
     svc := ssm.New(session.New())
     param, err := svc.GetParameter(&ssm.GetParameterInput{
-        Name:           aws.String(parameter_arn),
-        WithDecryption: aws.Bool(true),
+        Name:           aws.String(parameter_name),
+		WithDecryption: aws.Bool(true),
     })
     if err != nil {
         return "", err
@@ -24,12 +24,13 @@ func read_ssm_parameter(parameter_arn string) (string, error) {
     return *param.Parameter.Value, nil
 }
 
-func get_previous_ssm_parameter_version(parameter_arn string) (string, error) {
+func get_previous_ssm_parameter_version(parameter_name string) (string, error) {
     svc := ssm.New(session.New())
 
     // Get parameter history
     history, err := svc.GetParameterHistory(&ssm.GetParameterHistoryInput{
-        Name: aws.String(parameter_arn),
+        Name: aws.String(parameter_name),
+		WithDecryption: aws.Bool(true),
     })
 
     if err != nil {
@@ -38,7 +39,7 @@ func get_previous_ssm_parameter_version(parameter_arn string) (string, error) {
 
     // Check if there's a previous version
     if len(history.Parameters) < 2 {
-        return "", fmt.Errorf("No previous version found for %s", parameter_arn)
+        return "", fmt.Errorf("No previous version found for %s", parameter_name)
     }
 
     // The last item in the list is the latest version, so we'll take the second to last
@@ -54,16 +55,12 @@ func handler(ctx context.Context, request events.APIGatewayV2CustomAuthorizerV2R
 	headers := request.Headers
 	originVerifyHeader := headers["x-origin-verify"]
 
-	fmt.Println("headers: ", headers)
-	fmt.Println("originVerifyHeader: ", originVerifyHeader)
-	fmt.Println("request.RouteArn: ", request.RouteArn)
-
-	last_version_ssm_parameter, err := get_previous_ssm_parameter_version(os.Getenv("SSM_SECRET_ARN"))
+	last_version_ssm_parameter, err := read_ssm_parameter(os.Getenv("SSM_SECRET_NAME"))
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
 
-	second_to_last_version_ssm_parameter, err := get_previous_ssm_parameter_version(os.Getenv("SSM_SECRET_ARN"))
+	second_to_last_version_ssm_parameter, err := get_previous_ssm_parameter_version(os.Getenv("SSM_SECRET_NAME"))
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}

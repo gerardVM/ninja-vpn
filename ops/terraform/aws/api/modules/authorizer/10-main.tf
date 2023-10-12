@@ -25,7 +25,7 @@ resource "aws_lambda_function" "authorizer" {
 
   environment {
     variables = {
-      SSM_SECRET_ARN = var.ssm_secret_arn
+      SSM_SECRET_NAME = var.ssm_secret_name
     }
   }
 

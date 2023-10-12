@@ -1,7 +1,8 @@
 module "authorization" {
   source = "./modules/authorizer"
 
-  ssm_secret_arn = module.header_rotation.parameter_arn
+  ssm_secret_arn  = module.header_rotation.parameter_arn
+  ssm_secret_name = module.header_rotation.parameter_name
 }
 
 module "header_rotation" {
