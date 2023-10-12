@@ -17,8 +17,3 @@ variable "cloudfront_authorizer_header_name" {
   description = "The name of the header to use for authorization"
   type        = string
 }
-
-# variable "rotation_periodicity" {
-#   description = "The period of time after which the keys expire"
-#   type        = string
-# }

@@ -1,5 +1,7 @@
 resource "aws_cloudfront_distribution" "distribution" {
 
+    # lifecycle { ignore_changes = [ origin ] }
+
     origin {
         connection_attempts = 3
         connection_timeout  = 10

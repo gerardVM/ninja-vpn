@@ -1,8 +1,10 @@
 import boto3
 import os
+import random
+import string
 
-def generate_random_hex_value(length=16):
-    characters = string.hexdigits + string.punctuation
+def generate_random_hex_value(length=32):
+    characters = string.hexdigits + '_%@'
     random_value = ''.join(random.choice(characters) for _ in range(length))
     return random_value
 

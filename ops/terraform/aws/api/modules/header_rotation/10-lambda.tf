@@ -57,8 +57,6 @@ resource "aws_iam_policy" "header_rotation_policy" {
         Action = [
           "ssm:GetParameter",
           "ssm:PutParameter"
-          # "ssm:DeleteParameter",
-          # "ssm:DescribeParameters"
         ]
         Resource = aws_ssm_parameter.ninja-vpn-authorization-header-value.arn
       },

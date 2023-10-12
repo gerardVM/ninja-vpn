@@ -1,13 +1,13 @@
 resource "aws_cloudwatch_event_rule" "daily_trigger" {
   name                = "daily_lambda_trigger"
-  schedule_expression = "cron(0 */12 * * ? *)"  # Triggers every 12 hours
+  schedule_expression = "rate(12 hours)"  # Triggers every 12 hours
+}
 
-  # Targets the Lambda function
-  event_pattern = jsonencode({
-    source      = ["aws.lambda"]
-    detail_type = ["Scheduled Event"]
-    resources   = [aws_lambda_function.header_rotation.arn]
-  })
+resource "aws_cloudwatch_event_target" "header_rotation" {
+  rule      = aws_cloudwatch_event_rule.daily_trigger.name
+  target_id = "header_rotation"
+
+  arn       = aws_lambda_function.header_rotation.arn
 }
 
 resource "aws_lambda_permission" "cloudwatch_trigger" {
