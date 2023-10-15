@@ -2,18 +2,20 @@
 <html>
 <head>
     <title>Ninja VPN</title>
+    <script>
+        function changeButtonText() {
+            var deployButton = document.getElementByValue("deploy");
+            deployButton.innerText = "Deploy VPN";
+            var destroyButton = document.getElementByValue("destroy");
+            destroyButton.innerText = "Destroy VPN";
+        }
+    </script>
 </head>
 <body>
 
     <h1>Ninja VPN</h1>
 
     <form id="customConfiguration">
-        <label for="action">Action:</label>
-        <select id="action" name="action">
-            <option value="deploy">Deploy</option>
-            <option value="destroy">Destroy</option>
-        </select><br><br>
-
         <label for="countdown_digit">Time:</label>
         <select id="countdown_digit" name="countdown_digit">
             <option value="1">1</option>
@@ -62,18 +64,20 @@
         <label for="email">Email:</label>
         <input type="email" id="email" name="email"><br><br>
 
-        <input type="button" id="submitBtn" value="Submit" onclick="submitForm(), this.disabled=true">
+
+        <input type="button" id="action" value="Destroy VPN" onclick="submitForm('destroy'), this.disabled=true">
+        <input type="button" id="action" value="Deploy VPN" onclick="submitForm('deploy'), this.disabled=true">
     </form>
 
     <div id="message"></div>
 
     <script>
-        function submitForm() {
+        function submitForm(action) {
             var form = document.getElementById("customConfiguration");
             var formData = new FormData(form);
 
             var requestBody = {};
-            requestBody['action'] = formData.get('action');
+            requestBody['action'] = action;
             requestBody['email'] = formData.get('email');
             requestBody['timezone'] = Intl.DateTimeFormat().resolvedOptions().timeZone;
             requestBody['region'] = formData.get('aws_region');

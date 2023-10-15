@@ -37,6 +37,23 @@ resource "aws_apigatewayv2_stage" "stage" {
     throttling_burst_limit = 1
     throttling_rate_limit = 1
   }
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_log_group.arn
+    format = jsonencode({
+      requestId = "$context.requestId"
+      ip = "$context.identity.sourceIp"
+      requestTime = "$context.requestTime"
+      httpMethod = "$context.httpMethod"
+      routeKey = "$context.routeKey"
+      status = "$context.status"
+      protocol = "$context.protocol"
+      responseLength = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+      integrationStatus = "$context.integrationStatus"
+      integrationLatency = "$context.integrationLatency"
+      integrationStatus = "$context.integrationStatus"
+    })
+  }
 }
 
 resource "aws_apigatewayv2_deployment" "lambda" {
@@ -44,4 +61,9 @@ resource "aws_apigatewayv2_deployment" "lambda" {
   description = "Deployment for Lambda"
 
   depends_on = [aws_apigatewayv2_route.lambda]
+}
+
+resource "aws_cloudwatch_log_group" "api_log_group" {
+  name              = "/aws/apigateway/${aws_apigatewayv2_api.api.id}"
+  retention_in_days = 7
 }
