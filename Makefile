@@ -46,3 +46,6 @@ update-lambda-code:
 
 update-lambda-trigger-code:
 	@CGO_ENABLED=0 go build -o trigger_lambda site/backend/trigger_lambda.go && zip ops/terraform/aws/api/trigger_lambda.zip trigger_lambda && rm trigger_lambda
+
+update-lambda-authorizer-code:
+	@CGO_ENABLED=0 go build -o authorize ops/terraform/aws/api/modules/authorizer/authorize.go && zip ops/terraform/aws/api/modules/authorizer/authorize.zip authorize && rm authorize

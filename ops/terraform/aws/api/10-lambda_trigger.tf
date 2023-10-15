@@ -16,7 +16,7 @@ resource "aws_iam_role" "lambda_trigger_role" {
 }
 
 resource "aws_lambda_function" "vpn_controller_trigger" {
-  function_name    = "vpn-controller-trigger"
+  function_name    = "ninja-vpn-controller-trigger"
   filename         = "${path.module}/trigger_lambda.zip"
   source_code_hash = fileexists("${path.module}/trigger_lambda.zip") ? filebase64sha256("${path.module}/trigger_lambda.zip") : null
   role             = aws_iam_role.lambda_trigger_role.arn

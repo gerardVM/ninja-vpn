@@ -4,7 +4,8 @@ resource "aws_apigatewayv2_api" "api" {
   cors_configuration {
     allow_headers = ["*"]
     allow_methods = ["POST"]
-    allow_origins = ["https://${aws_cloudfront_distribution.distribution.domain_name}", "https://${aws_route53_record.root_domain.name}"]
+    # allow_origins = ["https://${aws_cloudfront_distribution.distribution.domain_name}", "https://${aws_route53_record.root_domain.name}"]
+    allow_origins = ["*"]
     max_age       = 300
   }
 }
@@ -19,9 +20,11 @@ resource "aws_apigatewayv2_integration" "lambda" {
 }
 
 resource "aws_apigatewayv2_route" "lambda" {
-  api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /lambda"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  api_id             = aws_apigatewayv2_api.api.id
+  route_key          = "POST /lambda"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorization_type = "CUSTOM"
+  authorizer_id      = aws_apigatewayv2_authorizer.api_authorizer.id
 }
 
 resource "aws_apigatewayv2_stage" "stage" {
