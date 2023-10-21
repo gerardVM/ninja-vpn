@@ -35,7 +35,7 @@ make tf-deploy TF_TARGET=vpn
 
 ## What this API solution consists of
 
-Cloudfront Frontend --> API Gateway --> Request handler Lambda --> VPN builder Lambda --> VPN Server
+![Architecture solution image](files/api_solution.png)
 
 
 ## Contributing
