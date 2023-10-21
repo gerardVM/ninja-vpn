@@ -9,9 +9,47 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	lambda "github.com/aws/aws-lambda-go/lambda"
     lambda_trigger "github.com/aws/aws-sdk-go/service/lambda"
 )
+
+func checkIfEmailExists(email string) (bool, error) {
+	dynamodb_region := os.Getenv("API_REGION")
+
+	// Initialize a session using the environment's AWS credentials
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region: aws.String(dynamodb_region),
+	}))
+
+	// Create a DynamoDB client
+	svc := dynamodb.New(sess)
+
+	// Define the input parameters for the query
+	input := &dynamodb.GetItemInput{
+		TableName: aws.String(os.Getenv("DYNAMODB_TABLE")),
+		Key: map[string]*dynamodb.AttributeValue{
+			"email": {
+				S: aws.String(email),
+			},
+		},
+	}
+
+	// Make the query to DynamoDB
+	result, err := svc.GetItem(input)
+	if err != nil {
+		log.Println("Error querying DynamoDB:", err)
+		return false, err
+	}
+
+	// Check if the item was found
+	if result.Item == nil {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 
 func invokeLambda(action, email, timezone, countdown, region string) error {
 	lambda_region := os.Getenv("API_REGION")
@@ -63,14 +101,37 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 		"Access-Control-Allow-Origin": "*", // Add necessary CORS headers
 	}
 
-	body := map[string]interface{}{
+	success_body := map[string]interface{}{
 		"message": "Success! You have requested to " + action + " a VPN for " + email + " in " + region + " for " + countdown,
 	}
 
 	// Marshal the response into JSON
-	responseBody, err := json.Marshal(body)
+	successResponseBody, err := json.Marshal(success_body)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to marshal response body: %v", err)
+	}
+
+	deny_body := map[string]interface{}{
+		"message": "Error! " + email + " is not authorized to use this service",
+	}
+
+	// Marshal the response into JSON
+	denyResponseBody, err := json.Marshal(deny_body)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, fmt.Errorf("failed to marshal response body: %v", err)
+	}
+
+	emailExistsInDB, err := checkIfEmailExists(email)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
+	if !emailExistsInDB {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Headers:    headers,
+			Body:       string(denyResponseBody),
+		}, nil
 	}
 
 	// Call lambda function
@@ -83,7 +144,7 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
 		Headers:    headers,
-		Body:       string(responseBody),
+		Body:       string(successResponseBody),
 	}, nil
 }
 
