@@ -26,6 +26,7 @@ resource "aws_lambda_function" "vpn_controller_trigger" {
   environment {
     variables = {
       API_REGION   = local.config.api_region
+      DYNAMODB_TABLE  = aws_dynamodb_table.authorized_users.name
     }
   }
 
@@ -54,6 +55,13 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
           "logs:PutLogEvents"
         ]
         Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem"
+        ]
+        Resource = aws_dynamodb_table.authorized_users.arn
       }
     ]
   })

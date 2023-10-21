@@ -65,11 +65,11 @@ func handler(ctx context.Context, request events.APIGatewayV2CustomAuthorizerV2R
 		fmt.Println("Error: ", err)
 	}
 
-	if originVerifyHeader == last_version_ssm_parameter || originVerifyHeader == second_to_last_version_ssm_parameter {
-		return generatePolicy("testing_the_lambda_authorizer", "Allow", request.RouteArn), nil
+	if originVerifyHeader != last_version_ssm_parameter && originVerifyHeader != second_to_last_version_ssm_parameter {
+		return generatePolicy("lambda_authorizer_deny", "Deny", request.RouteArn), nil
 	}
 
-	return generatePolicy("testing_the_lambda_authorizer", "Deny", request.RouteArn), nil
+	return generatePolicy("lambda_authorizer_allow", "Allow", request.RouteArn), nil
 }
 
 func generatePolicy(principalID, effect, resource string) events.APIGatewayCustomAuthorizerResponse {
