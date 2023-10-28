@@ -18,13 +18,13 @@ resource "aws_iam_role" "header_rotation_role" {
 data "archive_file" "injector" {
   type        = "zip"
   source_file = "${path.module}/header_rotation.py"
-  output_path = "${path.module}/header_rotation.zip"
+  output_path = "${path.root}/header_rotation.zip"
 }
 
 resource "aws_lambda_function" "header_rotation" {
   function_name    = "ninja-vpn-header-rotation"
-  filename         = "${path.module}/header_rotation.zip"
-  source_code_hash = fileexists("${path.module}/header_rotation.zip") ? filemd5("${path.module}/header_rotation.zip") : null
+  filename         = data.archive_file.injector.output_path
+  source_code_hash = fileexists(data.archive_file.injector.output_path) ? filebase64sha256(data.archive_file.injector.output_path) : null
   role             = aws_iam_role.header_rotation_role.arn
   handler          = "header_rotation.lambda_handler"
   runtime          = "python3.8"
