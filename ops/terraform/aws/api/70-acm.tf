@@ -1,5 +1,5 @@
 resource "aws_acm_certificate" "cert" {
-  domain_name       = local.domain_name
+  domain_name       = "*.${aws_route53_zone.hosted_zone.name}"
   validation_method = "DNS"
 
   tags = {
