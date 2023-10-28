@@ -4,8 +4,7 @@ resource "aws_apigatewayv2_api" "api" {
   cors_configuration {
     allow_headers = ["*"]
     allow_methods = ["POST"]
-    # allow_origins = ["https://${aws_cloudfront_distribution.distribution.domain_name}", "https://${aws_route53_record.root_domain.name}"]
-    allow_origins = ["*"]
+    allow_origins = ["https://${aws_route53_zone.hosted_zone.name}", "https://www.${aws_route53_zone.hosted_zone.name}"]
     max_age       = 300
   }
 }

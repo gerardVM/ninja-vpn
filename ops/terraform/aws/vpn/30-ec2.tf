@@ -1,5 +1,5 @@
 data "template_file" "user_data" {
-  template = file("${path.module}/files/user_data.sh")
+  template = file("${path.root}/files/user_data.sh")
 
   vars = {
     NAME                = "${local.config.name}-${replace(split("@", local.config.email)[0], ".", "-")}-${local.config.region}"

@@ -17,8 +17,8 @@ resource "aws_iam_role" "lambda_execution_role" {
 
 resource "aws_lambda_function" "terminate_instance_lambda" {
   function_name    = "${var.function_name}-${var.suffix}"
-  filename         = "${path.module}/terminate_instance.zip"
-  source_code_hash = fileexists("${path.module}/terminate_instance.zip") ? filemd5("${path.module}/terminate_instance.zip") : null
+  filename         = data.archive_file.lambda_function.output_path
+  source_code_hash = fileexists(data.archive_file.lambda_function.output_path) ? filemd5(data.archive_file.lambda_function.output_path) : null
   role             = aws_iam_role.lambda_execution_role.arn
   handler          = "terminate_instance.lambda_handler"
   runtime          = "python3.8"
@@ -41,7 +41,7 @@ resource "aws_lambda_function" "terminate_instance_lambda" {
 data "archive_file" "lambda_function" {
   type        = "zip"
   source_file = "${path.module}/terminate_instance.py"
-  output_path = "${path.module}/terminate_instance.zip"
+  output_path = "${path.root}/terminate_instance.zip"
 }
 
 resource "aws_iam_policy" "termination_policy" {
