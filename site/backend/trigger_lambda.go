@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	"time"
+	"errors"
+	"regexp"
+	"strings"
 	"encoding/json"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-lambda-go/events"
@@ -14,12 +17,30 @@ import (
     lambda_trigger "github.com/aws/aws-sdk-go/service/lambda"
 )
 
+func isValidEmail(email string) bool {
+	// Use a regular expression to validate the email format
+	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	return regexp.MustCompile(regex).MatchString(email)
+}
+
+func sanitizeInput(email string) string {
+	return strings.TrimSpace(strings.ToLower(email))
+}
+
 func checkIfEmailExists(email string) (bool, error) {
-	dynamodb_region := os.Getenv("API_REGION")
+	// Validate email
+	if !isValidEmail(email) {
+		return false, errors.New("Invalid email address format")
+	}
+
+	// Sanitize email
+	email = sanitizeInput(email)
+
+	dynamodbRegion := os.Getenv("API_REGION")
 
 	// Initialize a session using the environment's AWS credentials
 	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String(dynamodb_region),
+		Region: aws.String(dynamodbRegion),
 	}))
 
 	// Create a DynamoDB client
