@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.4.4"
+  required_version = "~>1.4.4"
 
   required_providers {
     aws = {
@@ -10,7 +10,6 @@ terraform {
 
   backend "s3" {
     bucket         = "ninja-vpn-tfstate"
-    key            = "<USER>/<REGION>/terraform.tfstate"
     region         = "eu-west-3"
     encrypt        = true
   }

@@ -48,7 +48,8 @@ jobs:
       - name: Terraform Plan
         run: |
           make decrypt-config
-          make tf-test TF_TARGET=api
+          make tf-init TF_TARGET=api
+          make tf-plan TF_TARGET=api
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: |
