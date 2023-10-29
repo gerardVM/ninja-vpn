@@ -87,29 +87,7 @@ func cloneRepository(repoURL, destination string) error {
 	return err
 }
 
-func editPreferencesFile(template string, destination string, region string, user string) error {
-	// Read the file
-	data, err := ioutil.ReadFile(template)
-	if err != nil {
-		return err
-	}
-
-	// Replace the region
-	newContents := strings.Replace(string(data), "<REGION>", region, -1)
-
-	// Replace the user
-	newContents = strings.Replace(newContents, "<USER>", user, -1)
-
-	// Write the file
-	err = ioutil.WriteFile(destination, []byte(newContents), 0)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func launchTerraform(directory string, action string) error {
+func launchTerraform(directory string, action string, user string, region string) error {
 	installer := &releases.ExactVersion{
 		Product: product.Terraform,
 		Version: version.Must(version.NewVersion("1.4.4")),
@@ -125,7 +103,9 @@ func launchTerraform(directory string, action string) error {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
 
-	err = tf.Init(context.Background(), tfexec.Upgrade(true))
+	backendConfig := tfexec.BackendConfig(fmt.Sprintf("key=%s/%s/terraform.tfstate", user, region))
+
+	err = tf.Init(context.Background(), tfexec.Upgrade(true), backendConfig)
 	if err != nil {
 		log.Fatalf("error running Init: %s", err)
 	}
@@ -208,19 +188,8 @@ func HandleRequest(ctx context.Context, event json.RawMessage) error {
 
 	terraformDir := filepath.Join(tempDir, "ops/terraform/aws/vpn")
 
-	// Edit the file preferences.tf
-	err = editPreferencesFile(filepath.Join(terraformDir, "templates/00-preferences.tpl"), filepath.Join(terraformDir, "00-preferences.tf"), region, strings.Split(email,"@")[0]) // Remember to update the path
-	if err != nil {
-		return fmt.Errorf("failed to edit preferences.tf file: %v", err)
-	}
-
-	err = os.Chmod(filepath.Join(terraformDir, "00-preferences.tf"), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to change permissions of preferences.tf file: %v", err)
-	}
-
 	// Launch Terraform
-	err = launchTerraform(terraformDir, action)
+	err = launchTerraform(terraformDir, action, strings.Split(email,"@")[0], region)
 	if err != nil {
 		return fmt.Errorf("failed to launch Terraform: %v", err)
 	}
