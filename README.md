@@ -22,6 +22,7 @@ You will be identified by your email and the location you want your VPN server t
 ### Deploy the API
 
 ```bash
+make tf-init TF_TARGET=api
 make tf-deploy TF_TARGET=api
 ```
 
@@ -30,6 +31,7 @@ make tf-deploy TF_TARGET=api
 Set parameters in config.yaml, including: email, timezone, region and countdown. Then run:
   
 ```bash
+make tf-init-vpn TF_TARGET=vpn
 make tf-deploy TF_TARGET=vpn
 ```
 

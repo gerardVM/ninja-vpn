@@ -8,11 +8,6 @@ VPN_USER        := $(shell echo $(shell yq -r '.email' config.yaml) | cut -d'@' 
 KMS_KEY         ?= arn:aws:kms:eu-west-3:877759700856:key/b3ac1035-b1f6-424a-bfe9-a6ec592e7487
 
 
-set-vpn-preferences-file:
-	@cd ${TF_DIR} && if [ -f ./templates/00-preferences.tpl ]; then \
-		sed 's|<USER>/<REGION>|${VPN_USER}/${VPN_REGION}|g' ./templates/00-preferences.tpl > ./00-preferences.tf; \
-		fi
-
 decrypt-config:
 	@sops -d config.enc.yaml > config.yaml
 
@@ -22,23 +17,18 @@ encrypt-config:
 tf-init:
 	@cd ${TF_DIR} && terraform init -reconfigure
 
-tf-validate: tf-init
-	@cd ${TF_DIR} && terraform validate
+tf-init-vpn:
+	@cd ${TF_DIR} && terraform init -reconfigure -backend-config="key=${VPN_USER}/${VPN_REGION}/terraform.tfstate"
 
 tf-plan:
 	@cd ${TF_DIR} && terraform plan -out=tfplan.out
 
-tf-test: tf-validate tf-plan
-
 tf-apply:
 	@cd ${TF_DIR} && terraform apply tfplan.out
 
-tf-output:
-	@cd ${TF_DIR} && terraform output -json
+tf-deploy: tf-plan tf-apply
 
-tf-deploy: set-vpn-preferences-file tf-init tf-plan tf-apply
-
-tf-destroy: set-vpn-preferences-file tf-init
+tf-destroy:
 	@cd ${TF_DIR} && terraform destroy
 
 update-lambda-code:
