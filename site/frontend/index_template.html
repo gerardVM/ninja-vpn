@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Ninja VPN</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -51,13 +52,34 @@
         <input type="email" id="email" name="email"><br><br>
 
 
-        <input type="button" id="action" value="Destroy VPN" onclick="submitForm('destroy'), this.disabled=true">
-        <input type="button" id="action" value="Deploy VPN" onclick="submitForm('deploy'), this.disabled=true">
+        <input type="button" id="action" value="Destroy VPN" onclick="checkRecaptcha('destroy'), this.disabled=true">
+        <input type="button" id="action" value="Deploy VPN" onclick="checkRecaptcha('deploy'), this.disabled=true">
     </form>
 
     <div id="message"></div>
 
+    <div class="g-recaptcha"
+    data-sitekey="${g-recaptcha}"
+    data-callback="onRecaptchaComplete"
+    data-size="invisible">
+    </div>
+
     <script>
+        let currentAction;
+
+        function checkRecaptcha(action) {
+            currentAction = action;
+            grecaptcha.execute();
+        }
+
+        function onRecaptchaComplete(token) {
+            if (!token) {
+                console.error('reCAPTCHA challenge not completed. Aborting form submission.');
+                return;
+            }
+            submitForm(currentAction);
+        }
+
         function submitForm(action) {
             var form = document.getElementById("customConfiguration");
             var formData = new FormData(form);
