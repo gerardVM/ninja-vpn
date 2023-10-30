@@ -41,3 +41,7 @@ resource "aws_route53_record" "all_subdomains" {
   ttl     = 300
   records = [aws_route53_record.root_domain.name]
 }
+
+output site_url {
+  value = aws_route53_record.root_domain.name
+}
