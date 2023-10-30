@@ -10,7 +10,7 @@ data "template_file" "index_html" {
     template = file(local.index_path)
     vars = {
         api_gateway_url = "https://${aws_cloudfront_distribution.distribution.domain_name}/${aws_apigatewayv2_stage.stage.name}${element(split(" ", aws_apigatewayv2_route.lambda.route_key),1)}"
-        g-recaptcha     = local.g_recaptcha
+        g-recaptcha     = var.g_recaptcha
     }
 }
 

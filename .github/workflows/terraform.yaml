@@ -50,6 +50,8 @@ jobs:
           make decrypt-config
           make tf-init TF_TARGET=api
           make tf-plan TF_TARGET=api
+        env:
+          TF_VAR_g_recaptcha: ${{ secrets.G_RECAPTCHA }}
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: |
