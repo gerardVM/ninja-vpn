@@ -1,3 +1,3 @@
 variable "g_recaptcha" {
-    type = "string"
+    type = string
 }
