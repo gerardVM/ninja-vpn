@@ -10,7 +10,7 @@ module "header_rotation" {
 
   cloudfront_distribution_arn       = aws_cloudfront_distribution.distribution.arn
   cloudfront_distribution_id        = aws_cloudfront_distribution.distribution.id
-  cloudfront_origin_id              = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
+  cloudfront_origin_id              = "${aws_apigatewayv2_api.api.id}.execute-api.${data.aws_region.current.name}.amazonaws.com"
   cloudfront_authorizer_header_name = "x-origin-verify"
 }
 

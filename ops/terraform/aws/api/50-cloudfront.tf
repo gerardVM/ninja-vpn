@@ -5,8 +5,8 @@ resource "aws_cloudfront_distribution" "distribution" {
     origin {
         connection_attempts = 3
         connection_timeout  = 10
-        domain_name = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
-        origin_id   = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
+        domain_name = "${aws_apigatewayv2_api.api.id}.execute-api.${data.aws_region.current.name}.amazonaws.com"
+        origin_id   = "${aws_apigatewayv2_api.api.id}.execute-api.${data.aws_region.current.name}.amazonaws.com"
         custom_header {
             name  = "x-origin-verify"
             value = module.header_rotation.header_value
@@ -67,7 +67,7 @@ resource "aws_cloudfront_distribution" "distribution" {
         path_pattern     = "/${aws_apigatewayv2_stage.stage.name}/*"
         allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
         cached_methods   = ["GET", "HEAD"]
-        target_origin_id = "${aws_apigatewayv2_api.api.id}.execute-api.${local.api_region}.amazonaws.com"
+        target_origin_id = "${aws_apigatewayv2_api.api.id}.execute-api.${data.aws_region.current.name}.amazonaws.com"
 
         forwarded_values {
             query_string = false

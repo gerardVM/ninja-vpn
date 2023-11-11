@@ -25,7 +25,7 @@ resource "aws_lambda_function" "vpn_controller_trigger" {
 
   environment {
     variables = {
-      API_REGION   = local.config.api_region
+      API_REGION      = data.aws_region.current.name
       DYNAMODB_TABLE  = aws_dynamodb_table.authorized_users.name
     }
   }
@@ -79,5 +79,5 @@ resource "aws_lambda_permission" "apigw_lambda" {
   principal     = "apigateway.amazonaws.com"
 
   # More: http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-control-access-using-iam-policies-to-invoke-api.html
-  source_arn = "arn:aws:execute-api:${local.api_region}:${local.api_accountId}:${aws_apigatewayv2_api.api.id}/*"
+  source_arn = "arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:${aws_apigatewayv2_api.api.id}/*"
 }
