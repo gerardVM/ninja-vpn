@@ -7,6 +7,7 @@ VPN_USER        := $(shell echo $(shell yq -r '.email' config.yaml) | cut -d'@' 
 
 KMS_KEY         ?= arn:aws:kms:eu-west-3:877759700856:key/b3ac1035-b1f6-424a-bfe9-a6ec592e7487
 
+-include Makefile.local
 
 decrypt-config:
 	@sops -d config.enc.yaml > config.yaml
