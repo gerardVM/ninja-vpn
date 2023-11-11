@@ -69,5 +69,4 @@ EOF
 resource "aws_iam_role_policy_attachment" "fleet_role_policy_attachment" {
   role       = aws_iam_role.fleet_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetTaggingRole"
-  depends_on = [aws_iam_role_policy_attachment.ec2_role_policy_attachment]
 }
