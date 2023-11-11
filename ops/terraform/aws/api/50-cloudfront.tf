@@ -43,8 +43,6 @@ resource "aws_cloudfront_distribution" "distribution" {
     enabled             = true
     is_ipv6_enabled     = true
     default_root_object = "index.html"
-    # web_acl_id          = aws_wafv2_web_acl.web_acl.id
-    web_acl_id          = "arn:aws:wafv2:us-east-1:877759700856:global/webacl/CreatedByCloudFront-07e5fa89-01e9-438c-af4c-98d0a5520d4b/dd217589-1bfc-48d9-80de-b06019efd90a"
 
     default_cache_behavior {
         allowed_methods  = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
