@@ -28,12 +28,6 @@ resource "aws_lambda_function" "vpn_controller" {
     size = 9216
   }
 
-  environment {
-    variables = {
-      SENDER_EMAIL   = local.config.ses_sender_email
-    }
-  }
-
   tags = local.tags
 }
 

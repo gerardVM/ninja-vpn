@@ -1,6 +1,5 @@
 # API configuration
 api_region: "eu-west-1"                             # Region where your API resources will be created
-account: "1234567890123"                            # Your AWS account ID
 bucket_name: "ninja-vpn-resources-bucket"           # Bucket name for the VPN users necessary files
 ses_sender_email: "the-emails-sender@example.com"   # Email address used to send the VPN users configuration
 domain: "your-domain.com"                           # Domain name used in the VPN users configuration
