@@ -8,6 +8,12 @@ locals {
       domain_name = aws_route53_zone.hosted_zone.name
     }
   ])))
+
+  dkim_tokens = flatten([
+    for attribute in aws_sesv2_email_identity.email_notifications.dkim_signing_attributes : [
+      for token in attribute.tokens : token
+    ]
+  ])
 }
 
 resource "aws_route53_zone" "hosted_zone" {
@@ -40,6 +46,24 @@ resource "aws_route53_record" "all_subdomains" {
   zone_id = aws_route53_zone.hosted_zone.zone_id
   ttl     = 300
   records = [aws_route53_record.root_domain.name]
+}
+
+resource "aws_route53_record" "email" {
+  name   = "${aws_route53_record.root_domain.name}"
+  type   = "MX"
+  zone_id = aws_route53_zone.hosted_zone.zone_id
+  ttl     = 300
+  records = ["10 inbound-smtp.us-east-1.amazonaws.com"]
+}
+
+resource "aws_route53_record" "email_verification" {
+  for_each = { for token in local.dkim_tokens : token => token }
+
+  name   = "${each.value}._domainkey.${aws_route53_record.root_domain.name}"
+  type   = "CNAME"
+  zone_id = aws_route53_zone.hosted_zone.zone_id
+  ttl     = 300
+  records = ["${each.value}.dkim.amazonses.com"]
 }
 
 output site_url {
