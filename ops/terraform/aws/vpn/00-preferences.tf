@@ -10,6 +10,7 @@ terraform {
 
   backend "s3" {
     bucket         = "ninja-vpn-tfstate"
+    dynamodb_table = "ninja-vpn-tfstate-lock"
     region         = "eu-west-3"
     encrypt        = true
   }
