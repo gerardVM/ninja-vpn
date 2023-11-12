@@ -41,6 +41,7 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid = "InvokeLambda"
         Effect = "Allow"
         Action = [
           "lambda:InvokeFunction"
@@ -48,15 +49,7 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
         Resource = aws_lambda_function.vpn_controller.arn
       },
       {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "arn:aws:logs:*:*:*"
-      },
-      {
+        Sid = "DynamoDBRead"
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem"
@@ -69,6 +62,11 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
 
 resource "aws_iam_role_policy_attachment" "trigger_vpn" {
   policy_arn = aws_iam_policy.vpn_controller_trigger.arn
+  role       = aws_iam_role.lambda_trigger_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "trigger_logs" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   role       = aws_iam_role.lambda_trigger_role.name
 }
 

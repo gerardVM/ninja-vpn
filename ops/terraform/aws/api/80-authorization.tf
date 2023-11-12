@@ -64,18 +64,3 @@ resource "aws_apigatewayv2_authorizer" "api_authorizer" {
     authorizer_payload_format_version = "2.0"
     authorizer_credentials_arn        = aws_iam_role.authorizer_lambda_trigger_role.arn
 }
-
-resource "aws_dynamodb_table" "authorized_users" {
-  name           = "ninja-vpn-authorized_users"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "email"
-
-  attribute {
-    name = "email"
-    type = "S"
-  }
-
-  tags = {
-    Environment = "Dev"
-  }
-}
