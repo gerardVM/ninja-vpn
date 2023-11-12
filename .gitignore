@@ -1,5 +1,6 @@
 tfplan.out
 .terraform/
+.terraform.lock.hcl
 terraform.tfstate*
 *.zip
 config.yaml
