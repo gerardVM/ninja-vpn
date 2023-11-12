@@ -39,21 +39,44 @@ resource "aws_iam_policy" "vpn_controller" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid = "EC2andIAMPermissions"
         Effect = "Allow"
         Action = [
           "ec2:*",
-          "s3:*",
-          "ses:*",
-          "lambda:*",
-          "iam:*",
-          "kms:*",
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "iam:*"
         ]
         Resource = "*"
       },
       {
+        Sid = "LambdaPermissions"
+        Effect = "Allow"
+        Action = [
+          "lambda:*"
+        ]
+        Resource = "arn:aws:lambda:*:${data.aws_caller_identity.current.account_id}:function:ninja-vpn-*"
+      },
+      {
+        Sid = "S3Permissions"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:GetObjectTagging"
+        ]
+        Resource = "arn:aws:s3:::ninja-vpn-*"
+      },
+      {
+        Sid = "DecryptKMS"
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+        ]
+        Resource = "*"
+      },
+      {
+        Sid = "DynamoDBAccess"
         Effect = "Allow"
         Action = [
           "dynamodb:GetItem",
@@ -70,5 +93,10 @@ resource "aws_iam_policy" "vpn_controller" {
 
 resource "aws_iam_role_policy_attachment" "launch_vpn" {
   policy_arn = aws_iam_policy.vpn_controller.arn
+  role       = aws_iam_role.lambda_execution_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
   role       = aws_iam_role.lambda_execution_role.name
 }
