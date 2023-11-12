@@ -52,6 +52,17 @@ resource "aws_iam_policy" "vpn_controller" {
           "logs:PutLogEvents"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:DeleteItem"
+        ]
+        Resource = aws_dynamodb_table.state_locker.arn
       }
     ]
   })
