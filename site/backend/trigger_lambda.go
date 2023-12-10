@@ -110,7 +110,7 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	}
 
 	// Extract parameters
-	action 		 := requestBody["action"]
+	action 		 := os.Getenv("ACTION")
 	email 		 := requestBody["email"]
 	timezone 	 := requestBody["timezone"]
 	countdown 	 := requestBody["countdown"]

@@ -25,8 +25,8 @@ resource "aws_lambda_function" "vpn_controller_trigger" {
 
   environment {
     variables = {
-      API_REGION      = data.aws_region.current.name
-      DYNAMODB_TABLE  = aws_dynamodb_table.authorized_users.name
+      API_REGION     = data.aws_region.current.name
+      DYNAMODB_TABLE = aws_dynamodb_table.authorized_users.name
     }
   }
 
