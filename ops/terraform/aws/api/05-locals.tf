@@ -9,7 +9,3 @@ locals {
         Name = "vpn-lambda-controller"
     }
 }
-
-data "aws_region" "current" {}
-
-data "aws_caller_identity" "current" {}

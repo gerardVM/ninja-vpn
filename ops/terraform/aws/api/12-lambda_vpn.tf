@@ -28,6 +28,13 @@ resource "aws_lambda_function" "vpn_controller" {
     size = 9216
   }
 
+  environment {
+    variables = {
+      SENDER_EMAIL = local.config.ses_sender_email
+      SES_REGION   = data.aws_region.current.name
+    }
+  }
+
   tags = local.tags
 }
 
@@ -39,11 +46,12 @@ resource "aws_iam_policy" "vpn_controller" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid = "EC2andIAMPermissions"
+        Sid = "EC2IAMSESPermissions"
         Effect = "Allow"
         Action = [
           "ec2:*",
-          "iam:*"
+          "iam:*",
+          "ses:SendEmail",
         ]
         Resource = "*"
       },

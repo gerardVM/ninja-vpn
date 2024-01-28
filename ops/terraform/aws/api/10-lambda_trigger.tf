@@ -25,28 +25,30 @@ resource "aws_lambda_function" "vpn_controller_trigger" {
 
   environment {
     variables = {
-      API_REGION      = data.aws_region.current.name
-      DYNAMODB_TABLE  = aws_dynamodb_table.authorized_users.name
+      API_REGION        = data.aws_region.current.name
+      DYNAMODB_TABLE    = aws_dynamodb_table.authorized_users.name
+      VPN_CONTROLLER    = aws_lambda_function.vpn_controller.arn
+      STEP_FUNCTION_ARN = aws_sfn_state_machine.lambda_trigger.arn
     }
   }
 
   tags = local.tags
 }
 
-resource "aws_iam_policy" "vpn_controller_trigger" {
-  name        = "vpn-controller-trigger"
+resource "aws_iam_policy" "sfn_trigger" {
+  name        = "sfn-trigger"
   description = "Allows Lambda to depoy all necessary resources"
   
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Sid = "InvokeLambda"
+        Sid = "InvokeStepFunction"
         Effect = "Allow"
         Action = [
-          "lambda:InvokeFunction"
+          "states:StartExecution"
         ]
-        Resource = aws_lambda_function.vpn_controller.arn
+        Resource = aws_sfn_state_machine.lambda_trigger.arn
       },
       {
         Sid = "DynamoDBRead"
@@ -61,7 +63,7 @@ resource "aws_iam_policy" "vpn_controller_trigger" {
 }
 
 resource "aws_iam_role_policy_attachment" "trigger_vpn" {
-  policy_arn = aws_iam_policy.vpn_controller_trigger.arn
+  policy_arn = aws_iam_policy.sfn_trigger.arn
   role       = aws_iam_role.lambda_trigger_role.name
 }
 

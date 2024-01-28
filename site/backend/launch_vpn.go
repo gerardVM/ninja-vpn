@@ -10,10 +10,13 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"go.mozilla.org/sops/decrypt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/go-yaml/yaml"
 	"github.com/go-git/go-git/v5"
 	"github.com/hashicorp/go-version"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/hashicorp/hc-install/product"
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/terraform-exec/tfexec"
@@ -87,7 +90,43 @@ func cloneRepository(repoURL, destination string) error {
 	return err
 }
 
-func launchTerraform(directory string, action string, user string, region string) error {
+func sendTerminationEmail(ctx context.Context, senderEmail, sesRegion, region, receiverEmail string) (string, error) {
+	destination := &ses.Destination{
+		ToAddresses: []*string{aws.String(receiverEmail)},
+	}
+
+	message := &ses.Message{
+		Subject: &ses.Content{
+			Data: aws.String("VPN server terminated"),
+		},
+		Body: &ses.Body{
+			Text: &ses.Content{
+				Data: aws.String(fmt.Sprintf("The VPN server in region %s has been terminated for %s.", region, receiverEmail)),
+			},
+		},
+	}
+
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(sesRegion),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	sesClient := ses.New(sess)
+	_, err = sesClient.SendEmailWithContext(ctx, &ses.SendEmailInput{
+		Destination: destination,
+		Message:     message,
+		Source:      aws.String(senderEmail),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return "Success", nil
+}
+
+func launchTerraform(directory string, action string, email string, region string) error {
 	installer := &releases.ExactVersion{
 		Product: product.Terraform,
 		Version: version.Must(version.NewVersion("1.4.4")),
@@ -103,7 +142,7 @@ func launchTerraform(directory string, action string, user string, region string
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
 
-	backendConfig := tfexec.BackendConfig(fmt.Sprintf("key=%s/%s/terraform.tfstate", user, region))
+	backendConfig := tfexec.BackendConfig(fmt.Sprintf("key=%s/%s/terraform.tfstate", strings.Split(email,"@")[0], region))
 
 	err = tf.Init(context.Background(), tfexec.Upgrade(true), backendConfig)
 	if err != nil {
@@ -128,6 +167,14 @@ func launchTerraform(directory string, action string, user string, region string
 			fmt.Println("VPN deployed! You will receive an email with your VPN configuration after 2 minutes")
 
 		case "destroy":
+			senderEmail := os.Getenv("SENDER_EMAIL")
+			sesRegion := os.Getenv("SES_REGION")
+
+			_, err = sendTerminationEmail(context.Background(), senderEmail, sesRegion, region, email)
+			if err != nil {
+				log.Fatalf("error sending email: %s", err)
+			}
+
 			err = tf.Destroy(context.Background())
 			if err != nil {
 				log.Fatalf("error running Destroy: %s", err)
@@ -189,7 +236,7 @@ func HandleRequest(ctx context.Context, event json.RawMessage) error {
 	terraformDir := filepath.Join(tempDir, "ops/terraform/aws/vpn")
 
 	// Launch Terraform
-	err = launchTerraform(terraformDir, action, strings.Split(email,"@")[0], region)
+	err = launchTerraform(terraformDir, action, email, region)
 	if err != nil {
 		return fmt.Errorf("failed to launch Terraform: %v", err)
 	}
