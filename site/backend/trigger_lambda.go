@@ -211,7 +211,7 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	}
 
 	success_body := map[string]interface{}{
-		"message": "Success! You have requested a VPN for " + email + " in " + region + " for " + requestBody["countdown"] + " seconds",
+		"message": "Success! You have requested a VPN for " + email + " in " + region + " for " + requestBody["countdown"],
 	}
 
 	// Marshal the response into JSON
