@@ -15,6 +15,40 @@ export subject="VPN Credentials"
 export file_data=$(base64 /home/ec2-user/wg-client.conf)
 export image_data=$(base64 /home/ec2-user/user-qr.png)
 
+
+# Convert duration to human readable format
+
+convert_seconds() {
+    local seconds=$1
+    local minutes=0
+    local hours=0
+
+    if [ $seconds -ge 3600 ]; then
+        hours=$((seconds / 3600))
+        seconds=$((seconds % 3600))
+    fi
+
+    if [ $seconds -ge 60 ]; then
+        minutes=$((seconds / 60))
+        seconds=$((seconds % 60))
+    fi
+
+    if [ $hours -gt 0 ]; then
+        if [ $minutes -gt 0 ]; then
+            echo "${hours} hours ${minutes} minutes"
+        else
+            echo "${hours} hours"
+        fi
+    elif [ $minutes -gt 0 ]; then
+        echo "${minutes} minutes"
+    fi
+}
+
+duration=$(convert_seconds $duration)
+
+
+# Replace variables in email template and send email
+
 envsubst '$SENDER_EMAIL,$RECEIVER_EMAIL,$AWS_REGION,$duration,$subject,$file_data,$image_data' < /home/ec2-user/config_email.txt > /home/ec2-user/email.txt
 
 aws ses send-raw-email --region ${SES_REGION} --raw-message Data="$(echo -n "$(cat /home/ec2-user/email.txt)" | base64 -w 0)" >> /home/ec2-user/user-data.log
