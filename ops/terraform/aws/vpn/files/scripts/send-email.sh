@@ -44,7 +44,7 @@ convert_seconds() {
     fi
 }
 
-duration=$(convert_seconds $duration_seconds)
+export duration=$(convert_seconds $duration_seconds)
 
 
 # Replace variables in email template and send email
