@@ -14,7 +14,6 @@ data "template_file" "user_data" {
     S3_TH_KEY           = aws_s3_object.termination_handler.key
     S3_IV_KEY           = aws_s3_object.install_vpn.key
     S3_SE_KEY           = aws_s3_object.send_email.key
-    S3_CD_KEY           = aws_s3_object.countdown.key
     S3_WC_KEY           = "${local.config.region}/${local.config.email}/wireguard_config"
     SENDER_EMAIL        = local.config.ses_sender_email
     RECEIVER_EMAIL      = local.config.email # aws_sesv2_email_identity.email_notifications.email_identity if your account is in the Amazon SES sandbox
