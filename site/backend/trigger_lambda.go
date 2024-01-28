@@ -144,21 +144,8 @@ func triggerStepFunction(payload []byte) error {
 }
 
 func invokeStepFunction(email, timezone, countdown, region string) error {
-	// lambda_region := os.Getenv("API_REGION")
-
-	// sess, err := session.NewSession(&aws.Config{
-	// 	Region: aws.String(lambda_region)},
-	// )
-	// if err != nil {
-	// 	log.Fatalf("failed to create session: %v", err)
-	// }
 
 	fmt.Println("Email: ", email, ", Timezone: ", timezone, ", Countdown: ", countdown, ", Region: ", region)
-
-	// input := &lambda_trigger.InvokeInput{
-	// 	FunctionName: aws.String("ninja-vpn-controller"),
-	// 	Payload:      []byte("{\"ACTION\":\"" + action + "\",\"EMAIL\":\"" + email + "\",\"TIMEZONE\":\"" + timezone + "\",\"COUNTDOWN\":\"" + countdown + "\",\"REGION\":\"" + region + "\"}"),
-	// }
 
 	payloadBytes, err := json.Marshal(map[string]string{
 		"EMAIL": email,
@@ -173,11 +160,6 @@ func invokeStepFunction(email, timezone, countdown, region string) error {
 	if err != nil {
 		log.Fatalf("failed to trigger step function: %v", err)
 	}
-
-	// _, err = svc.Invoke(input)
-	// if err != nil {
-	// 	log.Fatalf("failed to invoke function: %v", err)
-	// }
 
 	return nil
 }
