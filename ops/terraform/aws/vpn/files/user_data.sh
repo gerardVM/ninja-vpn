@@ -29,6 +29,7 @@ export S3_WC_KEY="${S3_WC_KEY}"
 export SENDER_EMAIL="${SENDER_EMAIL}" 
 export RECEIVER_EMAIL="${RECEIVER_EMAIL}" 
 export SES_REGION="${SES_REGION}"
+export COUNTDOWN="${COUNTDOWN}"
 
 
 # Spot Instance Interruption Handler
