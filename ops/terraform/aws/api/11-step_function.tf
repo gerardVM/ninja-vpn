@@ -76,7 +76,7 @@ resource "aws_sfn_state_machine" "lambda_trigger" {
     },
     "Wait": {
       "Type": "Wait",
-      "Seconds": 100,
+      "SecondsPath": "$.COUNTDOWN",
       "Next": "LambdaInvokeDestroy",
       "InputPath": "$",
       "OutputPath": "$"
