@@ -1,6 +1,5 @@
 resource "aws_iam_role" "step_function_role" {
   name = "step_function_role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [{
@@ -11,12 +10,30 @@ resource "aws_iam_role" "step_function_role" {
       Action = "sts:AssumeRole"
     }]
   })
+}
 
+resource "aws_iam_policy" "vpn_controller_trigger" {
+  name        = "vpn-controller-trigger"
+  description = "Allows Lambda to depoy all necessary resources"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid = "InvokeLambda"
+        Effect = "Allow"
+        Action = [
+          "lambda:InvokeFunction"
+        ]
+        Resource = aws_lambda_function.vpn_controller.arn
+      }
+    ]
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "step_function_role_attachment" {
   role       = aws_iam_role.step_function_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+  policy_arn = aws_iam_policy.vpn_controller_trigger.arn
 }
 
 resource "aws_sfn_state_machine" "lambda_trigger" {
@@ -26,27 +43,20 @@ resource "aws_sfn_state_machine" "lambda_trigger" {
   definition = <<EOF
 {
   "Comment": "A description of my state machine",
-  "StartAt": "AddVariable",
+  "StartAt": "LambdaInvokeDeploy",
   "States": {
-    "AddVariable": {
-      "Type": "Pass",
-      "Result": {
-        "ACTION": "deploy",
-        "EMAIL": "$.EMAIL",
-        "TIMEZONE": "$.TIMEZONE",
-        "COUNTDOWN": "$.COUNTDOWN",
-        "REGION": "$.REGION"
-      },
-      "ResultPath": "$.updatedPayload",
-      "Next": "LambdaInvokeDeploy"
-    },
     "LambdaInvokeDeploy": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
-      "OutputPath": "$.Payload",
       "Parameters": {
-        "Payload.$": "$.updatedPayload",
-        "FunctionName": "arn:aws:lambda:eu-west-3:877759700856:function:ninja-vpn-controller:$LATEST"
+        "Payload": {
+          "ACTION": "deploy",
+          "EMAIL.$": "$.EMAIL",
+          "TIMEZONE.$": "$.TIMEZONE",
+          "COUNTDOWN.$": "$.COUNTDOWN",
+          "REGION.$": "$.REGION"
+        },
+        "FunctionName.$": "$.VPN_CONTROLLER_ARN"
       },
       "Retry": [
         {
@@ -61,32 +71,29 @@ resource "aws_sfn_state_machine" "lambda_trigger" {
           "BackoffRate": 2
         }
       ],
-      "Next": "EditVariable"
-    },
-    "EditVariable": {
-      "Type": "Pass",
-      "Result": {
-        "ACTION": "destroy",
-        "EMAIL": "$.EMAIL",
-        "TIMEZONE": "$.TIMEZONE",
-        "COUNTDOWN": "$.COUNTDOWN",
-        "REGION": "$.REGION"
-      },
-      "ResultPath": "$.updatedPayload",
-      "Next": "Wait"
+      "Next": "Wait",
+      "ResultPath": null
     },
     "Wait": {
       "Type": "Wait",
-      "Seconds": 300,
-      "Next": "LambdaInvokeDestroy"
+      "Seconds": 100,
+      "Next": "LambdaInvokeDestroy",
+      "InputPath": "$",
+      "OutputPath": "$"
     },
     "LambdaInvokeDestroy": {
       "Type": "Task",
       "Resource": "arn:aws:states:::lambda:invoke",
       "OutputPath": "$.Payload",
       "Parameters": {
-        "Payload.$": "$.updatedPayload",
-        "FunctionName": "arn:aws:lambda:eu-west-3:877759700856:function:ninja-vpn-controller:$LATEST"
+        "Payload": {
+          "ACTION": "destroy",
+          "EMAIL.$": "$.EMAIL",
+          "TIMEZONE.$": "$.TIMEZONE",
+          "COUNTDOWN.$": "$.COUNTDOWN",
+          "REGION.$": "$.REGION"
+        },
+        "FunctionName.$": "$.VPN_CONTROLLER_ARN"
       },
       "Retry": [
         {
@@ -101,7 +108,8 @@ resource "aws_sfn_state_machine" "lambda_trigger" {
           "BackoffRate": 2
         }
       ],
-      "End": true
+      "End": true,
+      "InputPath": "$"
     }
   }
 }

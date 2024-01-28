@@ -13,7 +13,6 @@ mkdir -p /home/ec2-user/scripts
 aws s3 cp s3://${S3_BUCKET}/${S3_TH_KEY} /home/ec2-user/scripts/termination_handler.sh
 aws s3 cp s3://${S3_BUCKET}/${S3_IV_KEY} /home/ec2-user/scripts/install-vpn.sh
 aws s3 cp s3://${S3_BUCKET}/${S3_SE_KEY} /home/ec2-user/scripts/send-email.sh
-aws s3 cp s3://${S3_BUCKET}/${S3_CD_KEY} /home/ec2-user/scripts/countdown.sh
 
 
 # Export all necessary variables
@@ -29,18 +28,12 @@ export S3_CE_KEY="${S3_CE_KEY}"
 export S3_WC_KEY="${S3_WC_KEY}" 
 export SENDER_EMAIL="${SENDER_EMAIL}" 
 export RECEIVER_EMAIL="${RECEIVER_EMAIL}" 
-export SES_REGION="${SES_REGION}" 
-export COUNTDOWN="${COUNTDOWN}"
+export SES_REGION="${SES_REGION}"
 
 
 # Spot Instance Interruption Handler
 
 /bin/bash /home/ec2-user/scripts/termination_handler.sh &
-
-
-# Execute countdown
-
-if [[ "${COUNTDOWN}" != "0" ]]; then /bin/bash /home/ec2-user/scripts/countdown.sh & fi
 
 
 # Install VPN

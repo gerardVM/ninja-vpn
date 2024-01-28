@@ -44,11 +44,3 @@ resource "aws_s3_object" "config_email" {
   
   provider = aws.api_infra
 }
-
-resource "aws_s3_object" "countdown" {
-  bucket = data.aws_s3_bucket.bucket.id
-  key    = "${local.config.region}/${local.config.email}/countdown.sh"
-  source = "files/scripts/countdown.sh"
-  
-  provider = aws.api_infra
-}

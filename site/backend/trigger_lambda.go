@@ -13,8 +13,8 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/sfn"
 	lambda "github.com/aws/aws-lambda-go/lambda"
-    lambda_trigger "github.com/aws/aws-sdk-go/service/lambda"
 )
 
 func isValidEmail(email string) bool {
@@ -71,30 +71,113 @@ func checkIfEmailExists(email string) (bool, error) {
 	return true, nil
 }
 
+func countdownToSeconds(countdown string) (string, error) {
+	// Validate countdown
+	if countdown == "" {
+		return "", errors.New("Countdown cannot be empty")
+	}
 
-func invokeLambda(action, email, timezone, countdown, region string) error {
-	lambda_region := os.Getenv("API_REGION")
+	// Convert countdown to seconds
+	countdown = strings.ToLower(countdown)
+	countdown = strings.TrimSpace(countdown)
 
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(lambda_region)},
-	)
+	if strings.Contains(countdown, "day") || strings.Contains(countdown, "days") {
+		countdown = strings.ReplaceAll(countdown, "days", "")
+		countdown = strings.ReplaceAll(countdown, "day", "")
+		countdown = strings.TrimSpace(countdown)
+		countdown = countdown + "d"
+	}
+
+	if strings.Contains(countdown, "hour") || strings.Contains(countdown, "hours") {
+		countdown = strings.ReplaceAll(countdown, "hours", "")
+		countdown = strings.ReplaceAll(countdown, "hour", "")
+		countdown = strings.TrimSpace(countdown)
+		countdown = countdown + "h"
+	}
+
+	if strings.Contains(countdown, "minute") || strings.Contains(countdown, "minutes") {
+		countdown = strings.ReplaceAll(countdown, "minutes", "")
+		countdown = strings.ReplaceAll(countdown, "minute", "")
+		countdown = strings.TrimSpace(countdown)
+		countdown = countdown + "m"
+	}
+
+	if strings.Contains(countdown, "second") || strings.Contains(countdown, "seconds") {
+		countdown = strings.ReplaceAll(countdown, "seconds", "")
+		countdown = strings.ReplaceAll(countdown, "second", "")
+		countdown = strings.TrimSpace(countdown)
+		countdown = countdown + "s"
+	}
+
+	d, err := time.ParseDuration(countdown)
 	if err != nil {
-		log.Fatalf("failed to create session: %v", err)
+		return "", err
 	}
 
-	svc := lambda_trigger.New(sess)
+	return fmt.Sprintf("%.0f", d.Seconds()), nil
+}
 
-	fmt.Println("Action: ", action, ", Email: ", email, ", Timezone: ", timezone, ", Countdown: ", countdown, ", Region: ", region)
+func triggerStepFunction(payload []byte) error {
+	// Initialize AWS session
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
 
-	input := &lambda_trigger.InvokeInput{
-		FunctionName: aws.String("ninja-vpn-controller"),
-		Payload:      []byte("{\"ACTION\":\"" + action + "\",\"EMAIL\":\"" + email + "\",\"TIMEZONE\":\"" + timezone + "\",\"COUNTDOWN\":\"" + countdown + "\",\"REGION\":\"" + region + "\"}"),
+	// Create Step Functions client
+	sfnClient := sfn.New(sess)
+
+	// Replace with your Step Functions ARN
+	stateMachineARN := os.Getenv("STEP_FUNCTION_ARN")
+
+	// Start execution of Step Functions state machine with the provided payload
+	input := &sfn.StartExecutionInput{
+		StateMachineArn: aws.String(stateMachineARN),
+		Input:           aws.String(string(payload)),
 	}
 
-	_, err = svc.Invoke(input)
+	_, err := sfnClient.StartExecution(input)
 	if err != nil {
-		log.Fatalf("failed to invoke function: %v", err)
+		return err
 	}
+
+	return nil
+}
+
+func invokeStepFunction(email, timezone, countdown, region string) error {
+	// lambda_region := os.Getenv("API_REGION")
+
+	// sess, err := session.NewSession(&aws.Config{
+	// 	Region: aws.String(lambda_region)},
+	// )
+	// if err != nil {
+	// 	log.Fatalf("failed to create session: %v", err)
+	// }
+
+	fmt.Println("Email: ", email, ", Timezone: ", timezone, ", Countdown: ", countdown, ", Region: ", region)
+
+	// input := &lambda_trigger.InvokeInput{
+	// 	FunctionName: aws.String("ninja-vpn-controller"),
+	// 	Payload:      []byte("{\"ACTION\":\"" + action + "\",\"EMAIL\":\"" + email + "\",\"TIMEZONE\":\"" + timezone + "\",\"COUNTDOWN\":\"" + countdown + "\",\"REGION\":\"" + region + "\"}"),
+	// }
+
+	payloadBytes, err := json.Marshal(map[string]string{
+		"EMAIL": email,
+		"TIMEZONE": timezone,
+		"COUNTDOWN": countdown,
+		"REGION": region,
+		"VPN_CONTROLLER_ARN": os.Getenv("VPN_CONTROLLER"),
+	})
+	
+	// Trigger the Step Functions state machine with the payload
+	err = triggerStepFunction(payloadBytes)
+	if err != nil {
+		log.Fatalf("failed to trigger step function: %v", err)
+	}
+
+	// _, err = svc.Invoke(input)
+	// if err != nil {
+	// 	log.Fatalf("failed to invoke function: %v", err)
+	// }
 
 	return nil
 }
@@ -110,10 +193,15 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	}
 
 	// Extract parameters
-	action 		 := os.Getenv("ACTION")
+
+	countdown_value, err := countdownToSeconds(requestBody["countdown"])
+	if err != nil {
+		fmt.Println("Error: ", err)
+	}
+
 	email 		 := requestBody["email"]
 	timezone 	 := requestBody["timezone"]
-	countdown 	 := requestBody["countdown"]
+	countdown 	 := countdown_value
 	region 		 := requestBody["region"]
 
 	// Prepare your response
@@ -123,7 +211,7 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	}
 
 	success_body := map[string]interface{}{
-		"message": "Success! You have requested to " + action + " a VPN for " + email + " in " + region + " for " + countdown,
+		"message": "Success! You have requested a VPN for " + email + " in " + region + " for " + requestBody["countdown"] + " seconds",
 	}
 
 	// Marshal the response into JSON
@@ -156,7 +244,7 @@ func HandleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProx
 	}
 
 	// Call lambda function
-	go invokeLambda(action, email, timezone, countdown, region)
+	go invokeStepFunction(email, timezone, countdown, region)
 
 	// Sleep for 1 second
 	time.Sleep(time.Second)
