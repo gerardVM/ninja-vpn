@@ -10,7 +10,7 @@ cp /root/wireguard/peer1/peer1.png /home/ec2-user/user-qr.png
 export SENDER_EMAIL=${SENDER_EMAIL}
 export RECEIVER_EMAIL=${RECEIVER_EMAIL}
 export AWS_REGION=${CURRENT_REGION}
-export duration=${COUNTDOWN}
+export duration_seconds=${COUNTDOWN}
 export subject="VPN Credentials"
 export file_data=$(base64 /home/ec2-user/wg-client.conf)
 export image_data=$(base64 /home/ec2-user/user-qr.png)
@@ -44,7 +44,7 @@ convert_seconds() {
     fi
 }
 
-duration=$(convert_seconds $duration)
+duration=$(convert_seconds $duration_seconds)
 
 
 # Replace variables in email template and send email
