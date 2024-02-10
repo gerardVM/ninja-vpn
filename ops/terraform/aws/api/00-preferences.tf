@@ -18,10 +18,18 @@ terraform {
 
 provider "aws" {
   region = "eu-west-3"
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.config.aws_account}:role/github_actions"
+    session_name = "ninja-vpn-api-session"
+  }
 }
 
 provider "aws" {
   region = "us-east-1"
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.config.aws_account}:role/github_actions"
+    session_name = "ninja-vpn-api-session"
+  }
 
   alias = "us_east_1"
 }
