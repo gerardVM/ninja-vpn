@@ -13,17 +13,15 @@ terraform {
     key            = "api.tfstate"
     region         = "eu-west-3"
     encrypt        = true
-    assume_role = {
-      role_arn     = "arn:aws:iam::${local.config.aws_account}:role/provisioner"
-      session_name = "ninja-vpn-api-session"
-    }
+    role_arn       = "arn:aws:iam::877759700856:role/provisioner"
+    session_name   = "ninja-vpn-api-session"
   }
 }
 
 provider "aws" {
   region = "eu-west-3"
   assume_role {
-    role_arn     = "arn:aws:iam::${local.config.aws_account}:role/provisioner"
+    role_arn     = "arn:aws:iam::877759700856:role/provisioner"
     session_name = "ninja-vpn-api-session"
   }
 }
@@ -31,7 +29,7 @@ provider "aws" {
 provider "aws" {
   region = "us-east-1"
   assume_role {
-    role_arn     = "arn:aws:iam::${local.config.aws_account}:role/provisioner"
+    role_arn     = "arn:aws:iam::877759700856:role/provisioner"
     session_name = "ninja-vpn-api-session"
   }
 
