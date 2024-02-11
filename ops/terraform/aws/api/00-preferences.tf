@@ -13,7 +13,7 @@ terraform {
     key            = "api.tfstate"
     region         = "eu-west-3"
     encrypt        = true
-    assume_role {
+    assume_role = {
       role_arn     = "arn:aws:iam::${local.config.aws_account}:role/provisioner"
       session_name = "ninja-vpn-api-session"
     }
