@@ -8,7 +8,9 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+    "encoding/hex"
 	"encoding/json"
+    "crypto/sha256"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -46,12 +48,17 @@ func checkIfEmailExists(email string) (bool, error) {
 	// Create a DynamoDB client
 	svc := dynamodb.New(sess)
 
+	// Compute the hash of the email using SHA-256
+	hasher := sha256.New()
+	hasher.Write([]byte(email))
+	hash := hex.EncodeToString(hasher.Sum(nil))
+
 	// Define the input parameters for the query
 	input := &dynamodb.GetItemInput{
 		TableName: aws.String(os.Getenv("DYNAMODB_TABLE")),
 		Key: map[string]*dynamodb.AttributeValue{
-			"email": {
-				S: aws.String(email),
+			"email_hash": {
+				S: aws.String(hash),
 			},
 		},
 	}
