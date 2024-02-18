@@ -1,10 +1,10 @@
 resource "aws_dynamodb_table" "authorized_users" {
   name           = "ninja-vpn-authorized_users"
   billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "email"
+  hash_key       = "email_hash"
 
   attribute {
-    name = "email"
+    name = "email_hash"
     type = "S"
   }
 
