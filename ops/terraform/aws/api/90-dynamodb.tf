@@ -4,7 +4,7 @@ resource "aws_dynamodb_table" "authorized_users" {
   hash_key       = "email"
 
   attribute {
-    name = "email"
+    name = "email_hash"
     type = "S"
   }
 
